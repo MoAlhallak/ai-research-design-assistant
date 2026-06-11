@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Generated outputs
+outputs/
+exports/
+examples/*/papers.json
+examples/*/references.bib
+examples/*/citation-network.graphml
+
+# RAG / vector stores
+chroma/
+chroma_db/
+outputs/chroma/
+outputs/uploaded-papers/
+papers/*.pdf
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,32 @@
+[project]
+name = "ai-research-design-assistant"
+version = "0.1.0"
+description = "A student-facing AI assistant for structured research project planning."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "chromadb>=0.5.0",
+  "httpx>=0.27.0",
+  "langchain>=1.0.0",
+  "langchain-chroma>=0.1.4",
+  "pydantic>=2.7.0",
+  "typer>=0.12.0",
+  "rich>=13.7.0",
+  "streamlit>=1.41.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.5.0",
+]
+
+[project.scripts]
+research-design-assistant = "ai_research_design_assistant.cli:app"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
