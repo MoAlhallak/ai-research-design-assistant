@@ -8,7 +8,8 @@
 |-- CONTRIBUTING.md
 |-- docs/
 |   |-- project-structure.md
-|   `-- sprint-1-preparation.md
+|   |-- sprint-1-preparation.md
+|   `-- sprint-2-description.md
 |-- LICENSE
 |-- pyproject.toml
 |-- README.md
@@ -46,7 +47,8 @@
 The duplicate `sprint_1/` source snapshot and generated folders such as
 `outputs/`, caches, `__pycache__/` and `*.egg-info/` were removed from the active
 submission structure. Sprint-1 planning notes are kept in
-`docs/sprint-1-preparation.md`.
+`docs/sprint-1-preparation.md`. Sprint-2 implementation notes are kept in
+`docs/sprint-2-description.md`.
 
 ## Scope
 
