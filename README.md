@@ -1,144 +1,127 @@
 # AI Research Design Assistant
 
-Das Projekt ist ein agentischer Prototyp fuer Studierende. Der Assistant hilft,
-aus einer groben Forschungsidee einen strukturierten Forschungsplan zu erstellen.
+AI Research Design Assistant is a student-facing prototype that turns a rough
+research idea into a structured research plan. The focus is research planning,
+not paper search.
 
-Der Fokus liegt auf Forschungsplanung, nicht auf Paper-Suche. Der Agent erstellt
-ein eingegrenztes Thema, Forschungsfragen, Methodik, Evaluation, Risiken,
-naechste Schritte und Exporte.
+The assistant can run fully offline with templates and local rules. If an
+Academic Cloud / SAIA API key is configured, it can additionally refine the
+generated plan with an LLM while keeping a robust local fallback.
 
-## Was der Agent macht
+## Features
 
-Der Nutzer gibt eine Projektidee ein, zum Beispiel:
+- Generates a focused research topic from a broad idea
+- Detects useful focus areas in German and English input
+- Normalizes German umlauts such as `ä -> ae`, `ö -> oe`, `ü -> ue`, `ß -> ss`
+- Filters weak filler words such as `ich`, `moechte`, `gerne`, `ueber`, `want`,
+  `would`, `like` and `about`
+- Creates concrete research questions with rationale and measurable outcomes
+- Validates each research question for clarity, testability, scope and feasibility
+- Suggests methodology, evaluation criteria, risks and countermeasures
+- Saves previous plans in local memory
+- Supports ChromaDB-based prototype memory with JSON fallback
+- Exports generated plans as Markdown, JSON and PDF
+- Provides both a Streamlit UI and a CLI
+- Includes a small pytest suite for Sprint 2 functionality
 
-```text
-Ich moechte zu Agentic AI Security und Tool-Nutzung arbeiten.
+## Tech Stack
+
+- `Python` for the application logic
+- `Streamlit` for the web interface
+- `LangChain` for the planning workflow orchestration
+- `Pydantic` for structured output models
+- `ChromaDB` for local prototype memory
+- `Typer` and `Rich` for the command-line interface
+- `pytest` and `ruff` for testing and code quality
+- `httpx` for optional Academic Cloud / SAIA API calls
+
+## Quick Start
+
+Create and activate a virtual environment:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e .[dev]
 ```
 
-Der Agent erstellt daraus:
+Start the Streamlit app:
 
-- ein eingegrenztes Forschungsthema
-- Fokusbereiche
-- konkrete und pruefbare Forschungsfragen
-- Methodikvorschlag mit Vorgehensweise und Tools
-- Evaluationskriterien
-- Risiken und Gegenmassnahmen
-- einen Arbeitsplan mit naechsten Schritten
-- Export als Markdown, JSON und PDF
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
 
-## Technischer Ansatz
+Open the app in your browser:
 
-- `Python`: Hauptsprache fuer Logik, Datenverarbeitung und Prototyp.
-- `Streamlit`: moderne Weboberflaeche fuer Studierende.
-- `LangChain`: verbindet die Planungsschritte vom Input bis zum strukturierten Output.
-- `Pydantic`: definiert den strukturierten Output des Forschungsplans.
-- `ChromaDB`: ist fuer semantische Memory angebunden.
-- `SAIA / Academic Cloud`: kann ueber `.env` konfiguriert werden, um Plaene intern mit einem LLM zu verbessern.
+```text
+http://localhost:8501
+```
 
-## Sprint 2 Verbesserungen
+## CLI Usage
 
-Sprint 2 verbessert den bestehenden MVP, ohne die Projektstruktur neu zu bauen.
+```powershell
+.\.venv\Scripts\python.exe -m ai_research_design_assistant.cli plan "I want to work on Agentic AI Security and Tool Usage."
+```
 
-- Deutsch- und Englisch-Erkennung wurde geschaerft.
-- Deutsche Umlaute werden normalisiert: `ae`, `oe`, `ue`, `ss`.
-- Schwache Eingabewoerter wie `ich`, `moechte`, `gerne`, `ueber`, `want`,
-  `would`, `like`, `about` werden aus Keywords und Fokusbereichen entfernt.
-- Wichtige Themenbegriffe wie `Agentic AI`, `Security`, `Tool Usage`,
-  `Evaluation`, `Prototype` und `Research Design` bleiben als Fokusbereiche
-  sichtbar.
-- Forschungsfragen bekommen eine explizite Validierung fuer Klarheit,
-  Testbarkeit, Scope, Machbarkeit und eine Verbesserungsempfehlung.
-- Die Streamlit-App zeigt diese Fragenvalidierung direkt im Ergebnis an.
-- Die LLM-Verbesserung nutzt einen robusten Fallback. Wenn kein
-  API-Key vorhanden ist, die API nicht erreichbar ist oder die Antwort kein
-  gueltiges vollstaendiges JSON enthaelt, wird der lokale Template-Plan weiter
-  genutzt.
-- Eine kleine `pytest`-Testsuite prueft Keyword-Bereinigung,
-  Forschungsfragen, Validierung, Memory, Export und LLM-Fallback.
+The CLI exports the generated plan to the configured output folder.
+
+## Optional LLM Configuration
+
+The assistant works without an API key. Without an API key it uses:
+
+- local templates
+- rule-based topic analysis
+- local planning logic
+- local memory
+- export functions
+
+To enable LLM refinement, create a local `.env` file based on `.env.example`:
+
+```text
+ACADEMIC_CLOUD_API_KEY=your_api_key_here
+ACADEMIC_CLOUD_BASE_URL=https://chat-ai.academiccloud.de/v1
+ACADEMIC_CLOUD_MODEL=qwen3.5-122b-a10b
+```
+
+The API key is never hardcoded. The `.env` file is ignored by Git and must not be
+uploaded to GitHub.
+
+If the API key is missing, the API is unreachable, or the LLM returns invalid or
+incomplete JSON, the app falls back to the local template-based plan.
 
 ## Memory
 
-Die Memory speichert fruehere Projektideen und Forschungsplaene. Dadurch kann der
-Agent spaeter alte Projektstaende laden und aehnliche Plaene wiederfinden.
-
-Gespeichert wird lokal in:
+Generated plans are stored locally under:
 
 ```text
 outputs/project-memory/
 outputs/chroma-memory/
 ```
 
-ChromaDB ist fuer semantische Suche angebunden. Wenn ChromaDB nicht verfuegbar
-ist, nutzt der Agent lokale JSON-Dateien als Fallback.
+These folders are generated at runtime and are ignored by Git. ChromaDB memory is
+currently a prototype using deterministic local hash embeddings. It can be
+improved later with stronger semantic embedding models.
 
-Die aktuelle ChromaDB-Memory ist weiterhin ein Prototyp. Sie nutzt lokale,
-deterministische Hash-Embeddings fuer stabile Offline-Demos. Fuer bessere echte
-semantische Suche koennen spaeter produktive Embedding-Modelle angebunden
-werden.
+## Tests and Quality Checks
 
-## API-Key
-
-Der Agent funktioniert ohne API-Key.
-
-Ohne API-Key nutzt er:
-
-- Templates
-- Regeln
-- lokale Planungslogik
-- Memory
-- Exportfunktionen
-
-Wenn ein API-Key in `.env` oder als Environment Variable konfiguriert ist, kann
-der Agent intern ein LLM ueber SAIA / Academic Cloud nutzen. Das LLM verbessert
-Formulierungen, Forschungsfragen, Methodik und Risikoanalyse. In der App wird
-kein API-Key-Feld angezeigt.
-
-Ohne API-Key oder bei einem API-/JSON-Fehler bleibt die App stabil und nutzt
-automatisch den lokalen Template-Fallback.
-
-Der API-Key wird nicht im Code gespeichert und soll nicht auf GitHub hochgeladen
-werden.
-
-Konfiguration kann ueber Environment Variables oder eine lokale `.env` erfolgen:
-
-```text
-ACADEMIC_CLOUD_API_KEY=dein_api_key
-ACADEMIC_CLOUD_BASE_URL=https://chat-ai.academiccloud.de/v1
-ACADEMIC_CLOUD_MODEL=qwen3.5-122b-a10b
-```
-
-## Starten
-
-```powershell
-cd "C:\Users\HoOooms\Desktop\Desktob\UNI\MASTER\AAI\Agentic Ai Mo"
-.\.venv\Scripts\python.exe -m streamlit run app.py
-```
-
-Danach oeffnet sich die App normalerweise im Browser:
-
-```text
-http://localhost:8501
-```
-
-## CLI
-
-```powershell
-.\.venv\Scripts\python.exe -m ai_research_design_assistant.cli plan "Ich moechte zu Agentic AI Security und Tool-Nutzung arbeiten"
-```
-
-## Tests
+Run tests:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest
 ```
 
-Falls `pytest` lokal fehlt:
+Run linting:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -e .[dev]
+.\.venv\Scripts\python.exe -m ruff check .
 ```
 
-## Projektstruktur
+Run a compile check:
+
+```powershell
+.\.venv\Scripts\python.exe -m compileall src app.py
+```
+
+## Project Structure
 
 ```text
 .
@@ -153,30 +136,35 @@ Falls `pytest` lokal fehlt:
 |-- pyproject.toml
 |-- README.md
 |-- src/ai_research_design_assistant/
-    |-- agent.py
-    |-- cli.py
-    |-- exporters.py
-    |-- llm.py
-    |-- memory.py
-    |-- models.py
-    |-- planning.py
-    |-- templates.py
-    |-- text.py
-    |-- validation.py
-    `-- __init__.py
+|   |-- __init__.py
+|   |-- agent.py
+|   |-- cli.py
+|   |-- exporters.py
+|   |-- llm.py
+|   |-- memory.py
+|   |-- models.py
+|   |-- planning.py
+|   |-- templates.py
+|   |-- text.py
+|   `-- validation.py
 `-- tests/
     `-- test_sprint_2.py
 ```
 
-Der alte doppelte Ordner `sprint_1/` wurde fuer die Abgabe entfernt. Die aktive
-Version liegt im Projekt-Root und unter `src/`. Die Sprint-1-Vorbereitung ist
-als Doku-Datei in `docs/sprint-1-preparation.md` erhalten.
+## Sprint 2 Improvements
 
-Generierte Dateien wie `outputs/`, `.pytest_cache/`, `.ruff_cache/`,
-`__pycache__/` und `*.egg-info/` gehoeren nicht zur Abgabe und sind in
-`.gitignore` ausgeschlossen.
+Sprint 2 improved the existing MVP without rebuilding the project:
 
-## Wichtige Grenze
+- cleaner German and English keyword detection
+- explicit research question validation
+- improved Streamlit UI layout with clearer sections and tabs
+- robust LLM fallback behavior
+- pytest coverage for keyword cleaning, question generation, validation, memory,
+  exports and LLM fallback
+- cleaned project structure for GitHub submission
 
-Das System unterstuetzt die Planung. Es ersetzt keine Betreuung, keine
-wissenschaftliche Bewertung und keine eigene Pruefung durch den Studierenden.
+## Important Boundary
+
+This system is a planning aid. It does not replace academic supervision,
+scientific judgment, course requirements or the student's own verification of
+the generated research plan.
