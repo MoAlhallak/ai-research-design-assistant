@@ -108,20 +108,6 @@ def _render_input_panel() -> None:
             st.session_state["generate_plan"] = True
             st.rerun()
 
-    with st.expander("Optional LLM Improvement", expanded=False):
-        if llm_is_configured():
-            st.markdown(_status_badges(["LLM configured"]), unsafe_allow_html=True)
-            st.caption(
-                "The assistant will try to refine the generated plan with the configured "
-                "Academic Cloud / SAIA model. If it fails, the local fallback is used."
-            )
-        else:
-            st.markdown(_status_badges(["Local fallback active"]), unsafe_allow_html=True)
-            st.caption(
-                "No LLM configuration was found. The assistant still works offline with "
-                "templates, rules and local memory."
-            )
-
     previous_plans = load_project_plans()
     with st.expander("Memory", expanded=False):
         if previous_plans:
