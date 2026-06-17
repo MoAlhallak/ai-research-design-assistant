@@ -122,7 +122,6 @@ def _render_input_panel() -> None:
                 st.session_state["project_plan"] = previous_plans[selected]
                 st.session_state["similar_plans"] = []
                 st.session_state["plan_status"] = "loaded"
-                st.session_state["llm_warning"] = ""
                 st.rerun()
         else:
             st.caption("No saved plans yet. Generated plans are saved locally after creation.")
@@ -137,12 +136,7 @@ def _generate_plan() -> None:
     with st.spinner("Generating research plan..."):
         project_plan = create_project_plan(idea)
         if llm_is_configured():
-            project_plan, llm_ok, _ = asyncio.run(refine_project_plan_with_fallback(project_plan))
-            st.session_state["llm_warning"] = (
-                "" if llm_ok else "LLM unavailable or invalid response. Using local template fallback."
-            )
-        else:
-            st.session_state["llm_warning"] = ""
+            project_plan, _, _ = asyncio.run(refine_project_plan_with_fallback(project_plan))
 
         st.session_state["project_plan"] = project_plan
         _write_outputs(project_plan)
@@ -178,11 +172,8 @@ def _render_empty_state() -> None:
 def _render_plan(plan: ProjectPlan) -> None:
     similar_plans = st.session_state.get("similar_plans") or []
     plan_status = st.session_state.get("plan_status")
-    llm_warning = st.session_state.get("llm_warning")
     statuses = ["Plan generated", "Export ready"]
     statuses.append("Loaded from memory" if plan_status == "loaded" else "Saved to memory")
-    if llm_warning:
-        statuses.append("LLM fallback used")
     if plan_status != "loaded" and similar_plans:
         statuses.append(f"{len(similar_plans)} similar plan(s)")
 
@@ -198,8 +189,6 @@ def _render_plan(plan: ProjectPlan) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(_status_badges(statuses), unsafe_allow_html=True)
-    if llm_warning:
-        st.warning(llm_warning)
 
     (
         overview_tab,
