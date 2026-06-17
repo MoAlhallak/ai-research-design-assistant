@@ -14,11 +14,13 @@ from ai_research_design_assistant.exporters import (
 )
 from ai_research_design_assistant.llm import llm_is_configured, refine_project_plan_with_fallback
 from ai_research_design_assistant.memory import (
+    compare_project_plans,
     find_similar_project_plans,
     load_project_plans,
     save_project_plan,
+    search_project_plans,
 )
-from ai_research_design_assistant.models import ProjectPlan, ResearchQuestion
+from ai_research_design_assistant.models import MethodologyAdvice, ProjectPlan, ResearchQuestion
 
 
 OUTPUT_DIR = Path("outputs/student-project-plan")
@@ -199,8 +201,24 @@ def _render_plan(plan: ProjectPlan) -> None:
     if llm_warning:
         st.warning(llm_warning)
 
-    overview_tab, questions_tab, validation_tab, methodology_tab, export_tab = st.tabs(
-        ["Overview", "Questions", "Validation", "Methodology", "Export"]
+    (
+        overview_tab,
+        questions_tab,
+        methodology_advisor_tab,
+        evaluation_builder_tab,
+        risk_matrix_tab,
+        memory_tab,
+        export_tab,
+    ) = st.tabs(
+        [
+            "Overview",
+            "Questions",
+            "Methodology Advisor",
+            "Evaluation Builder",
+            "Risk Matrix",
+            "Memory",
+            "Export",
+        ]
     )
 
     with overview_tab:
@@ -224,46 +242,47 @@ def _render_plan(plan: ProjectPlan) -> None:
         st.markdown('<div class="section-title">Research Questions</div>', unsafe_allow_html=True)
         for index, question in enumerate(plan.research_questions, start=1):
             st.markdown(_question_card(index, question), unsafe_allow_html=True)
-
-    with validation_tab:
         st.markdown('<div class="section-title">Question Validation</div>', unsafe_allow_html=True)
         if plan.question_validations:
             st.table(_validation_rows(plan))
         else:
             st.info("No question validation available for this plan.")
 
-    with methodology_tab:
-        st.markdown('<div class="section-title">Methodology</div>', unsafe_allow_html=True)
+    with methodology_advisor_tab:
+        st.markdown('<div class="section-title">Methodology Advisor</div>', unsafe_allow_html=True)
         st.markdown(
             f"""
             <div class="info-card">
-                <span>Recommended Approach</span>
+                <span>Primary recommendation</span>
                 <h3>{_escape_html(plan.methodology.name)}</h3>
                 <p>{_escape_html(plan.methodology.fit)}</p>
             </div>
             """,
             unsafe_allow_html=True,
         )
-        st.markdown('<div class="section-title">Methodology Steps</div>', unsafe_allow_html=True)
-        st.markdown(_check_list(plan.methodology.steps), unsafe_allow_html=True)
-        st.markdown('<div class="section-title">Evaluation</div>', unsafe_allow_html=True)
-        st.markdown(
-            _key_value_list(
-                [(criterion.name, criterion.description) for criterion in plan.evaluation_criteria]
-            ),
-            unsafe_allow_html=True,
-        )
-        st.markdown('<div class="section-title">Risks</div>', unsafe_allow_html=True)
-        st.markdown(
-            _key_value_list([(risk.risk, risk.mitigation) for risk in plan.risks]),
-            unsafe_allow_html=True,
-        )
+        for method in plan.methodology_advice:
+            st.markdown(_method_card(method), unsafe_allow_html=True)
+
+    with evaluation_builder_tab:
+        st.markdown('<div class="section-title">Evaluation Builder</div>', unsafe_allow_html=True)
+        st.table(_evaluation_rows(plan))
+
+    with risk_matrix_tab:
+        st.markdown('<div class="section-title">Risk Matrix</div>', unsafe_allow_html=True)
+        st.table(_risk_rows(plan))
+
+    with memory_tab:
+        _render_memory_tab(plan)
 
     with export_tab:
         _render_export_section(plan)
 
 
 def _render_export_section(plan: ProjectPlan) -> None:
+    export_plan = plan
+    comparison = st.session_state.get("memory_comparison")
+    if comparison:
+        export_plan = plan.model_copy(update={"memory_comparison": comparison})
     st.markdown('<div class="section-title">Export</div>', unsafe_allow_html=True)
     st.markdown(
         """
@@ -275,9 +294,9 @@ def _render_export_section(plan: ProjectPlan) -> None:
         """,
         unsafe_allow_html=True,
     )
-    markdown_text = project_plan_to_markdown(plan)
-    json_text = project_plan_to_json(plan)
-    pdf_bytes = project_plan_to_pdf(plan)
+    markdown_text = project_plan_to_markdown(export_plan)
+    json_text = project_plan_to_json(export_plan)
+    pdf_bytes = project_plan_to_pdf(export_plan)
     col_a, col_b, col_c = st.columns(3)
     col_a.download_button(
         "Markdown",
@@ -330,6 +349,121 @@ def _question_card(index: int, question: ResearchQuestion) -> str:
     """
 
 
+def _method_card(method: MethodologyAdvice) -> str:
+    return f"""
+    <div class="method-card">
+        <div class="method-card-header">
+            <span>{_escape_html(method.method_name)}</span>
+            <p>{_escape_html(method.description)}</p>
+        </div>
+        {_key_value_list([
+            ("Why it fits", method.fit_reason),
+            ("Required steps", _join_items(method.required_steps)),
+            ("Required data or artifacts", _join_items(method.required_data_or_artifacts)),
+            ("Possible limitations", _join_items(method.limitations)),
+        ])}
+    </div>
+    """
+
+
+def _evaluation_rows(plan: ProjectPlan) -> list[dict[str, str]]:
+    return [
+        {
+            "Criterion": criterion.name,
+            "Description": criterion.description,
+            "How to measure": criterion.measurement,
+            "Expected evidence": criterion.expected_evidence,
+            "Priority": criterion.priority,
+        }
+        for criterion in plan.evaluation_criteria
+    ]
+
+
+def _risk_rows(plan: ProjectPlan) -> list[dict[str, str]]:
+    return [
+        {
+            "Risk": risk.risk_title,
+            "Description": risk.description,
+            "Probability": risk.probability,
+            "Impact": risk.impact,
+            "Mitigation": risk.mitigation_strategy,
+        }
+        for risk in plan.risk_matrix
+    ]
+
+
+def _render_memory_tab(plan: ProjectPlan) -> None:
+    st.markdown('<div class="section-title">Memory</div>', unsafe_allow_html=True)
+    recent_plans = load_project_plans()
+    st.markdown(
+        """
+        <div class="info-card">
+            <span>Local project memory</span>
+            <h3>Search, load and compare previous plans</h3>
+            <p>Memory uses local JSON files and the ChromaDB prototype fallback.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    query = st.text_input("Search saved plans by keyword", placeholder="security, prototype, evaluation")
+    search_results = search_project_plans(query) if query else recent_plans[:5]
+    if not search_results:
+        st.info("No saved plans found yet.")
+        return
+
+    selected_index = st.selectbox(
+        "Saved plans",
+        options=list(range(len(search_results))),
+        format_func=lambda index: search_results[index].topic_analysis.refined_topic,
+    )
+    selected_plan = search_results[selected_index]
+
+    col_load, col_compare = st.columns(2)
+    with col_load:
+        if st.button("Load selected plan", use_container_width=True):
+            st.session_state["project_plan"] = selected_plan
+            st.session_state["plan_status"] = "loaded"
+            st.session_state["memory_comparison"] = None
+            st.rerun()
+    with col_compare:
+        if st.button("Compare with current plan", use_container_width=True):
+            comparison = compare_project_plans(plan, selected_plan)
+            st.session_state["memory_comparison"] = comparison
+            st.rerun()
+
+    st.markdown('<div class="section-title">Recent saved plans</div>', unsafe_allow_html=True)
+    for saved_plan in recent_plans[:3]:
+        st.markdown(
+            f"""
+            <div class="memory-card">
+                <strong>{_escape_html(saved_plan.topic_analysis.refined_topic)}</strong>
+                <p>{_escape_html(", ".join(saved_plan.topic_analysis.detected_focus_areas))}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    comparison = st.session_state.get("memory_comparison")
+    if comparison:
+        st.markdown('<div class="section-title">Plan Comparison</div>', unsafe_allow_html=True)
+        st.table(
+            [
+                {"Aspect": "Same focus areas", "Result": _join_items(comparison.same_focus_areas)},
+                {
+                    "Aspect": "Different focus areas",
+                    "Result": _join_items(comparison.different_focus_areas),
+                },
+                {"Aspect": "Similar methodology", "Result": comparison.similar_methodology},
+                {
+                    "Aspect": "Changed research questions",
+                    "Result": _join_items(comparison.changed_research_questions),
+                },
+                {"Aspect": "Recommendation", "Result": comparison.recommendation},
+            ]
+        )
+
+
 def _validation_rows(plan: ProjectPlan) -> list[dict[str, str]]:
     return [
         {
@@ -379,6 +513,10 @@ def _key_value_list(items: list[tuple[str, str]]) -> str:
     )
 
 
+def _join_items(items: list[str]) -> str:
+    return "; ".join(items) if items else "Not specified."
+
+
 def _escape_html(value: str) -> str:
     return html.escape(value, quote=True)
 
@@ -425,6 +563,8 @@ def _apply_theme() -> None:
         .result-header,
         .topic-card,
         .info-card,
+        .method-card,
+        .memory-card,
         .question-card,
         .export-card {
             border: 1px solid var(--line);
@@ -587,6 +727,8 @@ def _apply_theme() -> None:
         .topic-card,
         .info-card,
         .export-card,
+        .method-card,
+        .memory-card,
         .question-card {
             border-radius: 14px;
             padding: 1rem 1.1rem;
@@ -619,6 +761,29 @@ def _apply_theme() -> None:
             align-items: flex-start;
             gap: 0.75rem;
             margin-bottom: 0.8rem;
+        }
+
+        .method-card-header {
+            display: grid;
+            gap: 0.45rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .method-card-header span {
+            width: fit-content;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--soft);
+            color: var(--accent-dark);
+            padding: 0.35rem 0.62rem;
+            font-weight: 850;
+        }
+
+        .method-card-header p,
+        .memory-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.5;
         }
 
         .question-card-header span {

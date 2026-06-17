@@ -5,6 +5,8 @@ from typing import Any
 
 from langchain_core.runnables import RunnableLambda
 
+from ai_research_design_assistant.evaluation import build_evaluation_criteria
+from ai_research_design_assistant.methodology_advisor import advise_methodologies
 from ai_research_design_assistant.models import (
     MethodologyRecommendation,
     ProjectPlan,
@@ -12,6 +14,7 @@ from ai_research_design_assistant.models import (
     ResearchQuestion,
     TopicAnalysis,
 )
+from ai_research_design_assistant.risks import build_risk_matrix
 from ai_research_design_assistant.templates import DEFAULT_EVALUATION, METHODOLOGY_KNOWLEDGE
 from ai_research_design_assistant.text import normalize_text, tokenize, top_keywords
 from ai_research_design_assistant.validation import build_plan_checklist, validate_research_questions
@@ -25,6 +28,7 @@ def build_project_planning_chain():
         | RunnableLambda(_create_research_questions)
         | RunnableLambda(_recommend_methodology)
         | RunnableLambda(_add_evaluation_and_risks)
+        | RunnableLambda(_build_sprint_3_planning)
         | RunnableLambda(_validate_project_plan)
     )
 
@@ -130,6 +134,31 @@ def _add_evaluation_and_risks(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _build_sprint_3_planning(state: dict[str, Any]) -> dict[str, Any]:
+    analysis: TopicAnalysis = state["analysis"]
+    questions: list[ResearchQuestion] = state["research_questions"]
+    methodology_advice = advise_methodologies(
+        analysis=analysis,
+        research_questions=questions,
+        project_type=_project_type(analysis),
+    )
+    evaluation_criteria = build_evaluation_criteria(
+        analysis=analysis,
+        questions=questions,
+        methodology_advice=methodology_advice,
+    )
+    risk_matrix = build_risk_matrix(
+        analysis=analysis,
+        methodology_advice=methodology_advice,
+    )
+    return {
+        **state,
+        "methodology_advice": methodology_advice,
+        "evaluation_criteria": evaluation_criteria,
+        "risk_matrix": risk_matrix,
+    }
+
+
 def _validate_project_plan(state: dict[str, Any]) -> dict[str, Any]:
     questions: list[ResearchQuestion] = state["research_questions"]
     analysis: TopicAnalysis = state["analysis"]
@@ -147,8 +176,10 @@ def _validate_project_plan(state: dict[str, Any]) -> dict[str, Any]:
         research_questions=questions,
         question_validations=question_validations,
         methodology=state["methodology"],
+        methodology_advice=state["methodology_advice"],
         prototype=state["prototype"],
         evaluation_criteria=state["evaluation_criteria"],
+        risk_matrix=state["risk_matrix"],
         risks=state["risks"],
         checklist=checklist,
         sprint_plan=state["sprint_plan"],
@@ -224,6 +255,16 @@ def _context_name(analysis: TopicAnalysis) -> str:
     if "Security" in analysis.detected_focus_areas:
         return "agentic AI security projects"
     return "student research projects"
+
+
+def _project_type(analysis: TopicAnalysis) -> str:
+    if "Prototype" in analysis.detected_focus_areas or "Tool Usage" in analysis.detected_focus_areas:
+        return "prototype"
+    if "Evaluation" in analysis.detected_focus_areas:
+        return "experiment"
+    if "Security" in analysis.detected_focus_areas:
+        return "case study"
+    return "evaluation checklist"
 
 
 def _tokens(text: str) -> list[str]:

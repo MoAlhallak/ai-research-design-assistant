@@ -15,10 +15,13 @@ fallback.
 - Detects useful focus areas in German and English input
 - Creates concrete research questions with rationale and measurable outcomes
 - Validates research questions for clarity, testability, scope and feasibility
-- Suggests methodology, evaluation criteria, risks and countermeasures
-- Saves previous plans in local memory
+- Suggests suitable methodology types with required steps, artifacts and limitations
+- Builds concrete evaluation criteria with measurement and expected evidence
+- Creates a structured risk matrix with probability, impact and mitigation
+- Saves, searches, loads and compares previous plans in local memory
 - Supports ChromaDB-based prototype memory with JSON fallback
-- Exports generated plans as Markdown, JSON and PDF
+- Exports generated plans as Markdown, JSON and PDF, including methodology,
+  evaluation, risk and memory-comparison sections
 - Provides both a Streamlit UI and a CLI
 - Includes tests and lightweight quality checks
 
@@ -90,6 +93,26 @@ outputs/student-project-plan/
 
 These folders are generated at runtime and are ignored by Git.
 
+The Memory tab shows recent saved plans, supports keyword search, can load an
+older plan and can compare the current plan with a previous one. The comparison
+highlights shared focus areas, changed focus areas, methodology similarity,
+changed research questions and a short recommendation.
+
+## Methodology and Evaluation Planning
+
+The assistant includes three planning components that make the generated plan
+more useful for research design:
+
+- `Methodology Advisor`: suggests suitable method types such as Literature
+  Review, Prototype, Experiment, Comparison, Case Study and Evaluation
+  Checklist. Each suggestion explains why it fits, which steps are required,
+  which data or artifacts are needed and which limitations should be considered.
+- `Evaluation Builder`: creates measurable evaluation criteria such as
+  functional correctness, usability, security, performance, completeness,
+  reproducibility and quality of the generated research plan.
+- `Risk Matrix`: structures risks by probability, impact and mitigation
+  strategy instead of showing only a simple risk list.
+
 ## Tests and Quality Checks
 
 Run tests:
@@ -121,7 +144,8 @@ Run a compile check:
 |-- docs/
 |   |-- project-structure.md
 |   |-- sprint-1-preparation.md
-|   `-- sprint-2-description.md
+|   |-- sprint-2-description.md
+|   `-- sprint-3-description.md
 |-- LICENSE
 |-- pyproject.toml
 |-- README.md
@@ -129,16 +153,20 @@ Run a compile check:
 |   |-- __init__.py
 |   |-- agent.py
 |   |-- cli.py
+|   |-- evaluation.py
 |   |-- exporters.py
 |   |-- llm.py
+|   |-- methodology_advisor.py
 |   |-- memory.py
 |   |-- models.py
 |   |-- planning.py
+|   |-- risks.py
 |   |-- templates.py
 |   |-- text.py
 |   `-- validation.py
 `-- tests/
-    `-- test_sprint_2.py
+    |-- test_sprint_2.py
+    `-- test_sprint_3.py
 ```
 
 ## Documentation
@@ -146,6 +174,7 @@ Run a compile check:
 - [Project structure](docs/project-structure.md)
 - [Sprint 1 preparation](docs/sprint-1-preparation.md)
 - [Sprint 2 description](docs/sprint-2-description.md)
+- [Sprint 3 description](docs/sprint-3-description.md)
 
 ## Important Boundary
 

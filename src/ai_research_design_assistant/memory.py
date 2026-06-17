@@ -8,8 +8,8 @@ from pathlib import Path
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 
-from ai_research_design_assistant.models import ProjectPlan
-from ai_research_design_assistant.text import keyword_overlap
+from ai_research_design_assistant.models import MemoryComparison, ProjectPlan
+from ai_research_design_assistant.text import keyword_overlap, tokenize
 
 
 DEFAULT_MEMORY_DIR = Path("outputs/project-memory")
@@ -84,6 +84,70 @@ def find_similar_project_plans(
         scored.append((keyword_overlap(idea, text), plan))
     scored.sort(key=lambda item: item[0], reverse=True)
     return [plan for score, plan in scored[:limit] if score > 0]
+
+
+def search_project_plans(
+    query: str,
+    memory_dir: Path = DEFAULT_MEMORY_DIR,
+    limit: int = 5,
+) -> list[ProjectPlan]:
+    query_tokens = set(tokenize(query))
+    if not query_tokens:
+        return load_project_plans(memory_dir)[:limit]
+    scored = []
+    for plan in load_project_plans(memory_dir):
+        text = _plan_memory_text(plan)
+        score = keyword_overlap(query, text)
+        if score > 0:
+            scored.append((score, plan))
+    scored.sort(key=lambda item: item[0], reverse=True)
+    return [plan for _, plan in scored[:limit]]
+
+
+def compare_project_plans(current: ProjectPlan, previous: ProjectPlan) -> MemoryComparison:
+    current_focus = set(current.topic_analysis.detected_focus_areas)
+    previous_focus = set(previous.topic_analysis.detected_focus_areas)
+    same_focus = sorted(current_focus & previous_focus)
+    different_focus = sorted(current_focus ^ previous_focus)
+    similar_methodology = (
+        "similar"
+        if current.methodology.name == previous.methodology.name
+        else "different"
+    )
+    previous_questions = {question.question for question in previous.research_questions}
+    changed_questions = [
+        question.question
+        for question in current.research_questions
+        if question.question not in previous_questions
+    ]
+    recommendation = _comparison_recommendation(
+        same_focus=same_focus,
+        different_focus=different_focus,
+        similar_methodology=similar_methodology,
+        changed_questions=changed_questions,
+    )
+    return MemoryComparison(
+        same_focus_areas=same_focus,
+        different_focus_areas=different_focus,
+        similar_methodology=similar_methodology,
+        changed_research_questions=changed_questions,
+        recommendation=recommendation,
+    )
+
+
+def _comparison_recommendation(
+    same_focus: list[str],
+    different_focus: list[str],
+    similar_methodology: str,
+    changed_questions: list[str],
+) -> str:
+    if not same_focus:
+        return "The plans address different directions; compare them only at a high level."
+    if similar_methodology == "similar" and not different_focus:
+        return "The current plan is close to the previous one; focus on refining evaluation evidence."
+    if changed_questions:
+        return "Review whether the changed research questions still match the intended focus and method."
+    return "Use the shared focus areas as continuity and document the changed planning decisions."
 
 
 def _index_project_plan(plan: ProjectPlan, json_path: Path) -> None:

@@ -78,11 +78,37 @@ def project_plan_to_markdown(plan: ProjectPlan) -> str:
             "",
             *[f"- {tool}" for tool in plan.methodology.tools],
             "",
+            "## Methodology Advisor",
+            "",
+        ]
+    )
+    for method in plan.methodology_advice:
+        lines.extend(
+            [
+                f"### {method.method_name}",
+                "",
+                f"- Description: {method.description}",
+                f"- Fit: {method.fit_reason}",
+                "",
+                "Required steps:",
+                *[f"- {step}" for step in method.required_steps],
+                "",
+                "Required data or artifacts:",
+                *[f"- {item}" for item in method.required_data_or_artifacts],
+                "",
+                "Limitations:",
+                *[f"- {item}" for item in method.limitations],
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
             "## Prototype",
             "",
             *[f"- {item}" for item in plan.prototype],
             "",
-            "## Evaluation Criteria",
+            "## Evaluation Builder",
             "",
         ]
     )
@@ -93,6 +119,22 @@ def project_plan_to_markdown(plan: ProjectPlan) -> str:
                 "",
                 f"- Description: {criterion.description}",
                 f"- Measurement: {criterion.measurement}",
+                f"- Expected evidence: {criterion.expected_evidence}",
+                f"- Priority: {criterion.priority}",
+                "",
+            ]
+        )
+
+    lines.extend(["## Risk Matrix", ""])
+    for risk in plan.risk_matrix:
+        lines.extend(
+            [
+                f"### {risk.risk_title}",
+                "",
+                f"- Description: {risk.description}",
+                f"- Probability: {risk.probability}",
+                f"- Impact: {risk.impact}",
+                f"- Mitigation strategy: {risk.mitigation_strategy}",
                 "",
             ]
         )
@@ -100,6 +142,24 @@ def project_plan_to_markdown(plan: ProjectPlan) -> str:
     lines.extend(["## Risks", ""])
     for risk in plan.risks:
         lines.extend([f"- {risk.risk}", f"  Mitigation: {risk.mitigation}"])
+
+    if plan.memory_comparison:
+        comparison = plan.memory_comparison
+        lines.extend(
+            [
+                "",
+                "## Memory Comparison",
+                "",
+                "- Same focus areas: " + ", ".join(comparison.same_focus_areas),
+                "- Different focus areas: " + ", ".join(comparison.different_focus_areas),
+                f"- Similar methodology: {comparison.similar_methodology}",
+                "",
+                "Changed research questions:",
+                *[f"- {question}" for question in comparison.changed_research_questions],
+                "",
+                f"Recommendation: {comparison.recommendation}",
+            ]
+        )
 
     lines.extend(["", "## Checklist", ""])
     for item, passed in plan.checklist.items():
