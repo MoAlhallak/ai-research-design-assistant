@@ -287,6 +287,7 @@ _STOP_FOCUS_WORDS = {
     "moechte",
     "mit",
     "want",
+    "work",
     "would",
     "und",
     "ueber",

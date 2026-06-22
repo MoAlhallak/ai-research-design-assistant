@@ -35,6 +35,7 @@ STOPWORDS = {
     "study",
     "i",
     "want",
+    "work",
     "would",
     "like",
     "about",

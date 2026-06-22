@@ -35,9 +35,10 @@ def main() -> None:
         page_title="Research Plan Assistant",
         page_icon="RP",
         layout="wide",
-        initial_sidebar_state="collapsed",
+        initial_sidebar_state="expanded",
     )
     _apply_theme()
+    _render_history_sidebar()
 
     st.markdown(
         """
@@ -78,6 +79,49 @@ def main() -> None:
             _render_empty_state()
 
 
+def _render_history_sidebar() -> None:
+    with st.sidebar:
+        st.markdown("## Plan History")
+        st.caption("Open an earlier project idea and its complete research plan.")
+
+        if st.button("New Plan", type="primary", use_container_width=True):
+            for key in (
+                "project_plan",
+                "similar_plans",
+                "plan_status",
+                "memory_comparison",
+            ):
+                st.session_state.pop(key, None)
+            st.session_state["idea_input"] = ""
+            st.rerun()
+
+        query = st.text_input(
+            "Search history",
+            key="history_search",
+            placeholder="Search project ideas",
+        )
+        history = search_project_plans(query, limit=20) if query else load_project_plans()[:20]
+
+        if not history:
+            st.info("No saved plans yet.")
+            return
+
+        st.markdown('<p class="history-heading">Recent plans</p>', unsafe_allow_html=True)
+        for index, saved_plan in enumerate(history):
+            if st.button(
+                _history_title(saved_plan.idea),
+                key=f"history_plan_{index}_{abs(hash(saved_plan.idea))}",
+                help=saved_plan.topic_analysis.refined_topic,
+                use_container_width=True,
+            ):
+                st.session_state["project_plan"] = saved_plan
+                st.session_state["idea_input"] = saved_plan.idea
+                st.session_state["similar_plans"] = []
+                st.session_state["plan_status"] = "loaded"
+                st.session_state["memory_comparison"] = None
+                st.rerun()
+
+
 def _render_input_panel() -> None:
     st.markdown(
         """
@@ -110,23 +154,6 @@ def _render_input_panel() -> None:
             st.session_state["generate_plan"] = True
             st.rerun()
 
-    previous_plans = load_project_plans()
-    with st.expander("Memory", expanded=False):
-        if previous_plans:
-            selected = st.selectbox(
-                "Load previous plan",
-                options=list(range(len(previous_plans))),
-                format_func=lambda index: previous_plans[index].topic_analysis.refined_topic,
-            )
-            if st.button("Load from Memory", use_container_width=True):
-                st.session_state["project_plan"] = previous_plans[selected]
-                st.session_state["similar_plans"] = []
-                st.session_state["plan_status"] = "loaded"
-                st.rerun()
-        else:
-            st.caption("No saved plans yet. Generated plans are saved locally after creation.")
-
-
 def _generate_plan() -> None:
     idea = st.session_state.get("idea_input", "").strip()
     if not idea:
@@ -143,6 +170,7 @@ def _generate_plan() -> None:
         st.session_state["similar_plans"] = find_similar_project_plans(idea)
         save_project_plan(project_plan)
         st.session_state["plan_status"] = "saved"
+        st.rerun()
 
 
 def _render_empty_state() -> None:
@@ -234,6 +262,8 @@ def _render_plan(plan: ProjectPlan) -> None:
         st.markdown('<div class="section-title">Question Validation</div>', unsafe_allow_html=True)
         if plan.question_validations:
             st.table(_validation_rows(plan))
+            st.caption("Open a question below to see why each rating was assigned.")
+            _render_validation_explanations(plan)
         else:
             st.info("No question validation available for this plan.")
 
@@ -461,10 +491,33 @@ def _validation_rows(plan: ProjectPlan) -> list[dict[str, str]]:
             "Testability": validation.testability,
             "Scope": validation.scope,
             "Feasibility": validation.feasibility,
-            "Improvement suggestion": validation.improvement_suggestion,
         }
         for index, validation in enumerate(plan.question_validations, start=1)
     ]
+
+
+def _render_validation_explanations(plan: ProjectPlan) -> None:
+    for index, validation in enumerate(plan.question_validations, start=1):
+        with st.expander(f"RQ{index} validation explanation", expanded=False):
+            st.markdown(f"**Question:** {validation.question}")
+            st.markdown(
+                _key_value_list(
+                    [
+                        (f"Clarity: {validation.clarity}", validation.clarity_reason),
+                        (
+                            f"Testability: {validation.testability}",
+                            validation.testability_reason,
+                        ),
+                        (f"Scope: {validation.scope}", validation.scope_reason),
+                        (
+                            f"Feasibility: {validation.feasibility}",
+                            validation.feasibility_reason,
+                        ),
+                        ("Improvement suggestion", validation.improvement_suggestion),
+                    ]
+                ),
+                unsafe_allow_html=True,
+            )
 
 
 def _status_badges(items: list[str]) -> str:
@@ -506,6 +559,11 @@ def _join_items(items: list[str]) -> str:
     return "; ".join(items) if items else "Not specified."
 
 
+def _history_title(idea: str, limit: int = 42) -> str:
+    clean = " ".join(idea.split())
+    return clean if len(clean) <= limit else f"{clean[: limit - 3]}..."
+
+
 def _escape_html(value: str) -> str:
     return html.escape(value, quote=True)
 
@@ -535,9 +593,37 @@ def _apply_theme() -> None:
             color: var(--ink);
         }
 
-        [data-testid="stSidebar"],
-        [data-testid="collapsedControl"] {
-            display: none;
+        [data-testid="stSidebar"] {
+            border-right: 1px solid var(--line);
+            background: #ffffff;
+        }
+
+        [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+            padding-top: 1rem;
+        }
+
+        [data-testid="stSidebar"] .stButton > button {
+            justify-content: flex-start;
+            min-height: 2.65rem;
+            border-color: var(--line);
+            background: #ffffff;
+            color: var(--ink);
+            text-align: left;
+        }
+
+        [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+            justify-content: center;
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .history-heading {
+            margin: 1rem 0 0.4rem;
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
         .block-container {

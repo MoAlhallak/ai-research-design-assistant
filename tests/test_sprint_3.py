@@ -60,3 +60,34 @@ def test_export_includes_sprint_3_sections() -> None:
     assert "## Methodology Advisor" in markdown
     assert "## Evaluation Builder" in markdown
     assert "## Risk Matrix" in markdown
+
+
+def test_validation_returns_transparent_reasons() -> None:
+    project_plan = plan("Agentic AI Security Tool Usage Evaluation Prototype")
+
+    assert len(project_plan.question_validations) == len(project_plan.research_questions)
+    for validation in project_plan.question_validations:
+        assert validation.clarity_reason
+        assert validation.testability_reason
+        assert validation.scope_reason
+        assert validation.feasibility_reason
+        assert validation.improvement_suggestion
+
+
+def test_worked_example_has_clean_focus_areas() -> None:
+    project_plan = plan("I want to work on Agentic AI Security and Tool Usage.")
+
+    focus_areas = project_plan.topic_analysis.detected_focus_areas
+    assert focus_areas == ["Agentic AI", "Security", "Tool Usage"]
+    assert "Work" not in focus_areas
+
+
+def test_export_includes_validation_reasons() -> None:
+    project_plan = plan("I want to work on Agentic AI Security and Tool Usage.")
+
+    markdown = project_plan_to_markdown(project_plan)
+
+    assert "Clarity reason:" in markdown
+    assert "Testability reason:" in markdown
+    assert "Scope reason:" in markdown
+    assert "Feasibility reason:" in markdown

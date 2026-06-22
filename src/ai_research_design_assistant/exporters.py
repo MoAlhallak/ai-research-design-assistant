@@ -55,9 +55,13 @@ def project_plan_to_markdown(plan: ProjectPlan) -> str:
                     f"### RQ{index} Validation",
                     "",
                     f"- Clarity: {validation.clarity}",
+                    f"- Clarity reason: {validation.clarity_reason}",
                     f"- Testability: {validation.testability}",
+                    f"- Testability reason: {validation.testability_reason}",
                     f"- Scope: {validation.scope}",
+                    f"- Scope reason: {validation.scope_reason}",
                     f"- Feasibility: {validation.feasibility}",
+                    f"- Feasibility reason: {validation.feasibility_reason}",
                     f"- Improvement suggestion: {validation.improvement_suggestion}",
                     "",
                 ]

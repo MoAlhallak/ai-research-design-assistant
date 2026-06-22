@@ -19,6 +19,7 @@ fallback.
 - Builds concrete evaluation criteria with measurement and expected evidence
 - Creates a structured risk matrix with probability, impact and mitigation
 - Saves, searches, loads and compares previous plans in local memory
+- Shows saved project conversations in a searchable left history sidebar
 - Supports ChromaDB-based prototype memory with JSON fallback
 - Exports generated plans as Markdown, JSON and PDF, including methodology,
   evaluation, risk and memory-comparison sections
@@ -98,6 +99,10 @@ older plan and can compare the current plan with a previous one. The comparison
 highlights shared focus areas, changed focus areas, methodology similarity,
 changed research questions and a short recommendation.
 
+The left `Plan History` sidebar works like a lightweight chat history. Every
+saved project idea and its generated response can be reopened. `New Plan` clears
+the current workspace without deleting saved plans.
+
 ## Methodology and Evaluation Planning
 
 The assistant includes three planning components that make the generated plan
@@ -112,6 +117,38 @@ more useful for research design:
   reproducibility and quality of the generated research plan.
 - `Risk Matrix`: structures risks by probability, impact and mitigation
   strategy instead of showing only a simple risk list.
+
+## Validation Logic
+
+Research-question validation is local, rule-based and transparent. It does not
+depend on an external AI service. For every question, the assistant checks:
+
+- whether the wording is specific and understandable
+- whether a measurable outcome or comparison is available
+- whether the scope is narrow enough for one research project
+- whether the required work is realistic for a student project
+
+Each rating includes a short reason and an improvement suggestion. The UI shows
+the compact ratings in a table and the explanations in expandable sections.
+The same reasons are included in Markdown, JSON and PDF exports.
+
+## Worked Example
+
+Example input:
+
+```text
+I want to work on Agentic AI Security and Tool Usage.
+```
+
+The local planning pipeline detects `Agentic AI`, `Security` and `Tool Usage`
+as focus areas. It generates three research questions about a security-aware
+planning agent, suitable methodology and evaluation criteria, and project risks.
+The Methodology Advisor recommends a prototype-oriented approach. The Evaluation
+Builder creates criteria for plan quality, functional correctness,
+reproducibility, security, usability and completeness. The Risk Matrix covers
+generic recommendations, project scope, evaluation evidence, threat modeling and
+prototype bias. A detailed walkthrough is available in the
+[Sprint 3 description](docs/sprint-3-description.md#worked-example).
 
 ## Tests and Quality Checks
 

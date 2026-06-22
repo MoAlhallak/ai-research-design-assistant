@@ -45,9 +45,17 @@ def _validate_research_question(question: ResearchQuestion) -> ResearchQuestionV
     return ResearchQuestionValidation(
         question=question.question,
         clarity=clarity,
+        clarity_reason=_clarity_reason(text, tokens, clarity),
         testability=testability,
+        testability_reason=_testability_reason(outcome_tokens, testability),
         scope=scope,
+        scope_reason=_scope_reason(tokens, scope),
         feasibility=feasibility,
+        feasibility_reason=_feasibility_reason(
+            text,
+            question.measurable_outcome,
+            feasibility,
+        ),
         improvement_suggestion=_improvement_suggestion(clarity, testability, scope, feasibility),
     )
 
@@ -58,6 +66,16 @@ def _clarity_rating(text: str, tokens: list[str]) -> str:
     if text.endswith("?") or len(tokens) >= 6:
         return "medium"
     return "weak"
+
+
+def _clarity_reason(text: str, tokens: list[str], rating: str) -> str:
+    if rating == "good":
+        return "The question is phrased as one complete question with a specific, readable length."
+    if rating == "medium":
+        return (
+            "The question is understandable, but its wording or level of detail could be more specific."
+        )
+    return "The question is too short or is not phrased as a complete research question."
 
 
 def _testability_rating(text: str, outcome_tokens: list[str]) -> str:
@@ -86,6 +104,16 @@ def _testability_rating(text: str, outcome_tokens: list[str]) -> str:
     return "weak"
 
 
+def _testability_reason(outcome_tokens: list[str], rating: str) -> str:
+    if rating == "good":
+        return "A measurable outcome and an explicit measurement term are available."
+    if rating == "medium":
+        return "An outcome is provided, but the measurement method or success threshold is not explicit."
+    if outcome_tokens:
+        return "The stated outcome does not define a clear measurement or comparison."
+    return "No measurable outcome is attached to the question."
+
+
 def _scope_rating(tokens: list[str]) -> str:
     broad_terms = {"ai", "system", "technology", "education", "security", "research"}
     narrow_terms = {"prototype", "tool", "tools", "rubric", "scenario", "student", "students"}
@@ -97,6 +125,14 @@ def _scope_rating(tokens: list[str]) -> str:
     return "focused"
 
 
+def _scope_reason(tokens: list[str], rating: str) -> str:
+    if rating == "focused":
+        return "The question limits the investigation to a concrete artifact, context or evaluation setting."
+    if rating == "too broad":
+        return "The question combines broad domains without limiting the artifact or evaluation context."
+    return "The question contains too little context to connect it to the wider research goal."
+
+
 def _feasibility_rating(text: str, measurable_outcome: str) -> str:
     combined = set(tokenize(f"{text} {measurable_outcome}"))
     realistic_terms = {"prototype", "rubric", "checklist", "example", "scenario", "small", "count", "rating"}
@@ -106,6 +142,19 @@ def _feasibility_rating(text: str, measurable_outcome: str) -> str:
     if combined & realistic_terms:
         return "realistic"
     return "unclear"
+
+
+def _feasibility_reason(text: str, measurable_outcome: str, rating: str) -> str:
+    combined = set(tokenize(f"{text} {measurable_outcome}"))
+    if rating == "realistic":
+        evidence = sorted(
+            combined & {"prototype", "rubric", "checklist", "example", "scenario", "small", "count", "rating"}
+        )
+        signal = ", ".join(evidence) if evidence else "a limited evaluation setup"
+        return f"The planned work uses {signal}, which is manageable for a student project."
+    if rating == "difficult":
+        return "The wording implies exhaustive or absolute evidence that is difficult to produce in one project."
+    return "The available question and outcome do not yet show the required effort or resource limits."
 
 
 def _improvement_suggestion(

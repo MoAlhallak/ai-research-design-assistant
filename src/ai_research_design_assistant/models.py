@@ -20,9 +20,13 @@ class ResearchQuestion(BaseModel):
 class ResearchQuestionValidation(BaseModel):
     question: str
     clarity: str
+    clarity_reason: str = ""
     testability: str
+    testability_reason: str = ""
     scope: str
+    scope_reason: str = ""
     feasibility: str
+    feasibility_reason: str = ""
     improvement_suggestion: str
 
 
