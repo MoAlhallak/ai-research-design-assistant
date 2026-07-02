@@ -9,6 +9,19 @@ Academic Cloud / SAIA API key is configured in the local environment, generated
 plans can also be refined internally with an LLM while keeping a robust local
 fallback.
 
+## Final Prototype Features
+
+This is a finished prototype, not a temporary demo. The key capabilities are:
+
+- One-click generation of a structured research plan from a rough idea
+- An assistant-style **Plan History** sidebar with search
+- **Rename** and **delete** for saved plans/chats, persisted locally
+- A **Demo Example** to show the full flow instantly
+- Methodology Advisor, Evaluation Builder and Risk Matrix planning views
+- Quality Check for research questions with transparent reasons
+- Markdown, JSON and PDF export
+- Local run and Docker run
+
 ## Features
 
 - Generates a focused research topic from a broad idea
@@ -20,6 +33,7 @@ fallback.
 - Creates a structured risk matrix with probability, impact and mitigation
 - Saves, searches, loads and compares previous plans in local memory
 - Shows saved project conversations in a searchable left history sidebar
+- Renames and deletes saved plans directly from the history sidebar
 - Supports ChromaDB-based prototype memory with JSON fallback
 - Exports generated plans as Markdown, JSON and PDF, including methodology,
   evaluation, risk and memory-comparison sections
@@ -57,6 +71,20 @@ Open the app in your browser:
 ```text
 http://localhost:8501
 ```
+
+## Docker Run
+
+The app also runs in Docker with Docker Compose:
+
+```powershell
+docker compose build
+docker compose up
+```
+
+Then open `http://localhost:8501`. Saved plans, memory and exports are stored in
+the mounted `outputs/` folder, so they persist across container restarts. The
+app runs fully offline by default; set `ACADEMIC_CLOUD_API_KEY` in your
+environment (or an `.env` file) to enable optional LLM refinement.
 
 ## CLI Usage
 
@@ -99,9 +127,28 @@ older plan and can compare the current plan with a previous one. The comparison
 highlights shared focus areas, changed focus areas, methodology similarity,
 changed research questions and a short recommendation.
 
-The left `Plan History` sidebar works like a lightweight chat history. Every
-saved project idea and its generated response can be reopened. `New Plan` clears
-the current workspace without deleting saved plans.
+## Plan History
+
+The left `Plan History` sidebar works like a lightweight chat history. A "chat"
+is one saved project idea together with its generated research plan. Every entry
+has a readable title and can be reopened with a single click to restore the full
+plan. `New Plan` starts a clean, empty input without deleting saved plans, and
+the search box filters saved plans by keyword. Newly generated plans appear in
+the history immediately, and an empty-state message is shown when no plans exist
+yet.
+
+## Rename and Delete Plans
+
+Each saved plan can be renamed or deleted directly in the Plan History sidebar:
+
+- Click the rename icon next to a plan, enter a new title and save it. The new
+  title appears immediately and the plan content is left unchanged.
+- Click the delete icon and confirm to remove a single plan. Deleting one plan
+  never affects the others, and if the deleted plan is currently open the main
+  area resets to a new empty plan.
+
+Both actions update the local memory files, so renames and deletions persist
+after the app is restarted.
 
 ## Methodology and Evaluation Planning
 
@@ -170,6 +217,12 @@ Run a compile check:
 .\.venv\Scripts\python.exe -m compileall src app.py
 ```
 
+## Demo Day Checklist
+
+A short manual checklist for verifying the app before a live demo, covering
+startup, the core flow, Plan History, rename/delete, exports and quality checks,
+is available in [docs/demo-day-checklist.md](docs/demo-day-checklist.md).
+
 ## Project Structure
 
 ```text
@@ -178,7 +231,10 @@ Run a compile check:
 |-- .gitignore
 |-- app.py
 |-- CONTRIBUTING.md
+|-- Dockerfile
+|-- docker-compose.yml
 |-- docs/
+|   |-- demo-day-checklist.md
 |   |-- project-structure.md
 |   |-- sprint-1-preparation.md
 |   |-- sprint-2-description.md
@@ -202,12 +258,14 @@ Run a compile check:
 |   |-- text.py
 |   `-- validation.py
 `-- tests/
+    |-- test_memory.py
     |-- test_sprint_2.py
     `-- test_sprint_3.py
 ```
 
 ## Documentation
 
+- [Demo Day checklist](docs/demo-day-checklist.md)
 - [Project structure](docs/project-structure.md)
 - [Sprint 1 preparation](docs/sprint-1-preparation.md)
 - [Sprint 2 description](docs/sprint-2-description.md)

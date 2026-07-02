@@ -126,10 +126,10 @@ def _add_evaluation_and_risks(state: dict[str, Any]) -> dict[str, Any]:
         "evaluation_criteria": DEFAULT_EVALUATION,
         "risks": risks,
         "sprint_plan": [
-            "Sprint 1: architecture, templates and example knowledge base",
-            "Sprint 2: topic analysis and research-question generation",
-            "Sprint 3: methodology advisor, evaluation criteria and risk analysis",
-            "Sprint 4: Streamlit demo, export functions, tests and documentation",
+            "Phase 1: architecture, templates and example knowledge base",
+            "Phase 2: topic analysis and research-question generation",
+            "Phase 3: methodology advisor, evaluation criteria and risk analysis",
+            "Phase 4: assistant UI, export functions, tests and documentation",
         ],
     }
 

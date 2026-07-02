@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    image: ai-research-design-assistant
+    container_name: ai-research-design-assistant
+    ports:
+      - "8501:8501"
+    # Persist saved plans, memory and exports across restarts.
+    volumes:
+      - ./outputs:/app/outputs
+    # Optional: enable LLM refinement by providing an API key in the environment.
+    environment:
+      - ACADEMIC_CLOUD_API_KEY=${ACADEMIC_CLOUD_API_KEY:-}
+      - ACADEMIC_CLOUD_BASE_URL=${ACADEMIC_CLOUD_BASE_URL:-}
+      - ACADEMIC_CLOUD_MODEL=${ACADEMIC_CLOUD_MODEL:-}
+    restart: unless-stopped

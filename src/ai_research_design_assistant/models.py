@@ -76,6 +76,8 @@ class MemoryComparison(BaseModel):
 
 
 class ProjectPlan(BaseModel):
+    plan_id: str = ""
+    title: str = ""
     idea: str
     topic_analysis: TopicAnalysis
     research_questions: list[ResearchQuestion]

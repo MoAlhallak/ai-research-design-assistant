@@ -40,13 +40,25 @@ class HashEmbeddings(Embeddings):
         return [value / norm for value in vector]
 
 
+def default_plan_title(plan: ProjectPlan) -> str:
+    """A short, readable default title for a saved plan/chat."""
+    idea = " ".join(plan.idea.split())
+    if idea:
+        return idea if len(idea) <= 60 else f"{idea[:57]}..."
+    return plan.topic_analysis.refined_topic
+
+
 def save_project_plan(
     plan: ProjectPlan,
     memory_dir: Path = DEFAULT_MEMORY_DIR,
 ) -> Path:
     memory_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-    path = memory_dir / f"project-plan-{timestamp}.json"
+    if not plan.plan_id:
+        plan.plan_id = f"project-plan-{timestamp}"
+    if not plan.title:
+        plan.title = default_plan_title(plan)
+    path = memory_dir / f"{plan.plan_id}.json"
     path.write_text(plan.model_dump_json(indent=2), encoding="utf-8")
     _index_project_plan(plan, path)
     return path
@@ -59,10 +71,52 @@ def load_project_plans(memory_dir: Path = DEFAULT_MEMORY_DIR) -> list[ProjectPla
     plans: list[ProjectPlan] = []
     for path in sorted(memory_dir.glob("project-plan-*.json"), reverse=True):
         try:
-            plans.append(ProjectPlan.model_validate_json(path.read_text(encoding="utf-8")))
+            plan = ProjectPlan.model_validate_json(path.read_text(encoding="utf-8"))
         except ValueError:
             continue
+        # Backfill identity for plans saved before titles/ids existed.
+        if not plan.plan_id:
+            plan.plan_id = path.stem
+        if not plan.title:
+            plan.title = default_plan_title(plan)
+        plans.append(plan)
     return plans
+
+
+def rename_project_plan(
+    plan_id: str,
+    new_title: str,
+    memory_dir: Path = DEFAULT_MEMORY_DIR,
+) -> bool:
+    """Rename a saved plan/chat title without touching its content."""
+    clean_title = " ".join(new_title.split())
+    if not plan_id or not clean_title:
+        return False
+    path = memory_dir / f"{plan_id}.json"
+    if not path.exists():
+        return False
+    try:
+        plan = ProjectPlan.model_validate_json(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return False
+    plan.plan_id = plan_id
+    plan.title = clean_title
+    path.write_text(plan.model_dump_json(indent=2), encoding="utf-8")
+    return True
+
+
+def delete_project_plan(
+    plan_id: str,
+    memory_dir: Path = DEFAULT_MEMORY_DIR,
+) -> bool:
+    """Delete a single saved plan/chat from local memory."""
+    if not plan_id:
+        return False
+    path = memory_dir / f"{plan_id}.json"
+    if not path.exists():
+        return False
+    path.unlink()
+    return True
 
 
 def find_similar_project_plans(
