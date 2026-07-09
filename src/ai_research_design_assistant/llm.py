@@ -10,7 +10,8 @@ import httpx
 from ai_research_design_assistant.models import ProjectPlan
 
 DEFAULT_BASE_URL = "https://chat-ai.academiccloud.de/v1"
-DEFAULT_MODEL = "qwen3.5-122b-a10b"
+DEFAULT_MODEL = "qwen3-30b-a3b-instruct-2507"
+DEFAULT_TIMEOUT_SECONDS = 180.0
 
 
 class LlmConfigError(RuntimeError):
@@ -34,7 +35,7 @@ def load_llm_environment(env_path: str = ".env") -> None:
             os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
-async def refine_project_plan_with_llm(
+async def generate_project_plan_with_llm(
     plan: ProjectPlan,
     model: str | None = None,
     base_url: str | None = None,
@@ -46,6 +47,7 @@ async def refine_project_plan_with_llm(
 
     selected_model = model or os.getenv("ACADEMIC_CLOUD_MODEL") or DEFAULT_MODEL
     selected_base_url = (base_url or os.getenv("ACADEMIC_CLOUD_BASE_URL") or DEFAULT_BASE_URL).rstrip("/")
+    timeout_seconds = _read_timeout_seconds()
     payload = {
         "model": selected_model,
         "temperature": 0.1,
@@ -53,9 +55,10 @@ async def refine_project_plan_with_llm(
             {
                 "role": "system",
                 "content": (
-                    "You improve student research project plans. Return only valid JSON "
-                    "matching the given schema. Keep the topic realistic and measurable. "
-                    "Do not add unsupported claims."
+                    "You are a research design agent for student projects. You output a "
+                    "single complete research plan as valid JSON that exactly matches the "
+                    "given schema. Keep the topic realistic and measurable for a small "
+                    "prototype. Do not add unsupported claims and do not add or remove keys."
                 ),
             },
             {
@@ -70,7 +73,7 @@ async def refine_project_plan_with_llm(
         "Content-Type": "application/json",
     }
 
-    async with httpx.AsyncClient(timeout=60) as client:
+    async with httpx.AsyncClient(timeout=timeout_seconds) as client:
         response = await client.post(
             f"{selected_base_url}/chat/completions",
             headers=headers,
@@ -83,28 +86,30 @@ async def refine_project_plan_with_llm(
     return ProjectPlan.model_validate(_parse_json_object(content))
 
 
-async def refine_project_plan_with_fallback(
-    plan: ProjectPlan,
-    model: str | None = None,
-    base_url: str | None = None,
-) -> tuple[ProjectPlan, bool, str | None]:
+def _read_timeout_seconds() -> float:
+    raw = os.getenv("ACADEMIC_CLOUD_TIMEOUT")
+    if not raw:
+        return DEFAULT_TIMEOUT_SECONDS
     try:
-        refined_plan = await refine_project_plan_with_llm(plan, model=model, base_url=base_url)
-    except Exception as exc:
-        return plan, False, str(exc)
-
-    return refined_plan, True, None
+        return float(raw)
+    except ValueError:
+        return DEFAULT_TIMEOUT_SECONDS
 
 
 def _project_plan_prompt(plan: ProjectPlan) -> str:
     return f"""
-Improve this project plan for a student research prototype.
+Create the best possible structured research plan for this student project idea.
 
-Return a JSON object with exactly the same structure as the input. Keep all keys.
-Improve wording, research questions, methodology, evaluation and risks only when useful.
-Keep the plan concise, realistic, measurable and suitable for a small prototype.
+Idea:
+{plan.idea}
 
-Input JSON:
+Use the JSON below as the required schema and starting point. Return a JSON object with
+exactly the same keys and nesting. Rewrite and improve every field so it genuinely fits
+the idea: sharpen the refined topic, research questions, methodology, evaluation criteria
+and risks. Keep the plan concise, realistic, measurable and suitable for a small student
+prototype. Keep the "plan_id" and "title" values as given. Do not add or remove keys.
+
+Structure JSON:
 {plan.model_dump_json(indent=2)}
 """.strip()
 

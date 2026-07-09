@@ -21,8 +21,7 @@ from ai_research_design_assistant.exporters import (
     project_plan_to_pdf,
 )  # noqa: E402
 from ai_research_design_assistant.llm import (  # noqa: E402
-    llm_is_configured,
-    refine_project_plan_with_fallback,
+    generate_project_plan_with_llm,
 )
 from ai_research_design_assistant.memory import (
     compare_project_plans,
@@ -43,7 +42,7 @@ from ai_research_design_assistant.models import (  # noqa: E402
 OUTPUT_DIR = Path("outputs/student-project-plan")
 EXAMPLE_IDEAS = {
     "Deutsch": (
-        "Ich moechte zu Agentic AI Security und Tool-Nutzung arbeiten "
+        "Ich möchte zu Agentic AI Security und Tool-Nutzung arbeiten "
         "und daraus ein realistisches Forschungsprojekt machen."
     ),
     "English": (
@@ -65,28 +64,28 @@ UI_TEXT = {
         "step_method": "03 Methodik",
         "step_export": "04 Export",
         "history": "Planverlauf",
-        "history_caption": "Oeffne eine fruehere Projektidee und den kompletten Forschungsplan.",
+        "history_caption": "Öffne eine frühere Projektidee und den kompletten Forschungsplan.",
         "language": "Sprache",
         "new_plan": "Neuer Plan",
         "search_history": "Verlauf durchsuchen",
         "search_history_placeholder": "Projektideen suchen",
-        "recent_plans": "Letzte Plaene",
-        "no_saved_plans": "Noch keine gespeicherten Plaene.",
+        "recent_plans": "Letzte Pläne",
+        "no_saved_plans": "Noch keine gespeicherten Pläne.",
         "rename": "Umbenennen",
-        "delete": "Loeschen",
+        "delete": "Löschen",
         "rename_plan": "Plan umbenennen",
         "new_title": "Neuer Titel",
         "new_title_placeholder": "Kurzer, sprechender Titel",
         "save_rename": "Titel speichern",
         "cancel": "Abbrechen",
-        "confirm_delete_question": "Diesen Plan wirklich loeschen?",
-        "confirm_delete": "Loeschen bestaetigen",
+        "confirm_delete_question": "Diesen Plan wirklich löschen?",
+        "confirm_delete": "Löschen bestätigen",
         "plan_renamed": "Plan umbenannt.",
-        "plan_deleted": "Plan geloescht.",
+        "plan_deleted": "Plan gelöscht.",
         "empty_title_warning": "Bitte einen Titel eingeben.",
         "input": "Eingabe",
         "project_idea": "Projektidee",
-        "input_help": "Eine kurze Beschreibung reicht fuer den ersten Plan.",
+        "input_help": "Eine kurze Beschreibung reicht für den ersten Plan.",
         "use_example": "Beispiel nutzen",
         "generate_plan": "Plan erstellen",
         "empty_title": "Noch kein Plan erstellt",
@@ -108,19 +107,19 @@ UI_TEXT = {
         "risk_matrix": "Risikomatrix",
         "memory": "Memory",
         "export": "Export",
-        "overview": "Ueberblick",
+        "overview": "Überblick",
         "plan_generated": "Plan erstellt",
         "export_ready": "Export bereit",
         "saved_to_memory": "In Memory gespeichert",
         "loaded_from_memory": "Aus Memory geladen",
-        "similar_plans": "aehnliche Plaene",
+        "similar_plans": "ähnliche Pläne",
         "focused_topic": "Eingegrenztes Thema",
-        "primary_recommendation": "Primaere Empfehlung",
-        "reason": "Begruendung",
+        "primary_recommendation": "Primäre Empfehlung",
+        "reason": "Begründung",
         "measurable_outcome": "Messbares Ergebnis",
-        "validation_caption": "Oeffne eine Frage darunter, um die Begruendung je Bewertung zu sehen.",
-        "no_validation": "Keine Fragenvalidierung fuer diesen Plan verfuegbar.",
-        "validation_expander": "RQ{index} Validierung erklaert",
+        "validation_caption": "Öffne eine Frage darunter, um die Begründung je Bewertung zu sehen.",
+        "no_validation": "Keine Fragenvalidierung für diesen Plan verfügbar.",
+        "validation_expander": "RQ{index} Validierung erklärt",
         "question": "Frage",
         "clarity": "Klarheit",
         "testability": "Testbarkeit",
@@ -131,30 +130,30 @@ UI_TEXT = {
         "description": "Beschreibung",
         "how_to_measure": "Messung",
         "expected_evidence": "Erwarteter Nachweis",
-        "priority": "Prioritaet",
+        "priority": "Priorität",
         "risk": "Risiko",
         "probability": "Wahrscheinlichkeit",
         "impact": "Auswirkung",
-        "mitigation": "Gegenmassnahme",
+        "mitigation": "Gegenmaßnahme",
         "export_title": "Forschungsplan herunterladen",
-        "export_body": "Nutze diese Dateien fuer Dokumentation, Abgabeentwurf oder Review.",
+        "export_body": "Nutze diese Dateien für Dokumentation, Abgabeentwurf oder Review.",
         "local_memory": "Lokale Projekt-Memory",
-        "memory_title": "Fruehere Plaene suchen, laden und vergleichen",
+        "memory_title": "Frühere Pläne suchen, laden und vergleichen",
         "memory_body": "Memory nutzt lokale JSON-Dateien und den ChromaDB-Prototyp-Fallback.",
-        "search_saved": "Gespeicherte Plaene per Keyword suchen",
+        "search_saved": "Gespeicherte Pläne per Keyword suchen",
         "search_saved_placeholder": "security, prototype, evaluation",
-        "saved_plans": "Gespeicherte Plaene",
-        "load_selected": "Ausgewaehlten Plan laden",
+        "saved_plans": "Gespeicherte Pläne",
+        "load_selected": "Ausgewählten Plan laden",
         "compare_current": "Mit aktuellem Plan vergleichen",
-        "no_search_results": "Keine gespeicherten Plaene gefunden.",
-        "recent_saved": "Letzte gespeicherte Plaene",
+        "no_search_results": "Keine gespeicherten Pläne gefunden.",
+        "recent_saved": "Letzte gespeicherte Pläne",
         "plan_comparison": "Planvergleich",
         "aspect": "Aspekt",
         "result": "Ergebnis",
         "same_focus": "Gleiche Fokusbereiche",
         "different_focus": "Andere Fokusbereiche",
-        "similar_methodology": "Aehnliche Methodik",
-        "changed_questions": "Geaenderte Forschungsfragen",
+        "similar_methodology": "Ähnliche Methodik",
+        "changed_questions": "Geänderte Forschungsfragen",
         "recommendation": "Empfehlung",
         "not_specified": "Nicht angegeben.",
         "generating": "Forschungsplan wird erstellt...",
@@ -162,7 +161,13 @@ UI_TEXT = {
         "why_it_fits": "Warum es passt",
         "required_steps": "Notwendige Schritte",
         "required_artifacts": "Notwendige Daten oder Artefakte",
-        "limitations": "Moegliche Grenzen",
+        "limitations": "Mögliche Grenzen",
+        "llm_error_eyebrow": "Fehler",
+        "llm_error_title": "Plan konnte nicht erstellt werden",
+        "llm_error_body": (
+            "Das LLM (Academic Cloud / SAIA) wurde nicht erreicht. Prüfe den API-Key in "
+            "der .env-Datei und die Verbindung und versuche es erneut."
+        ),
     },
     "English": {
         "app_title": "AI Research Design Assistant",
@@ -274,6 +279,12 @@ UI_TEXT = {
         "required_steps": "Required steps",
         "required_artifacts": "Required data or artifacts",
         "limitations": "Possible limitations",
+        "llm_error_eyebrow": "Error",
+        "llm_error_title": "Plan could not be generated",
+        "llm_error_body": (
+            "The LLM (Academic Cloud / SAIA) could not be reached. Check the API key in "
+            "the .env file and your connection, then try again."
+        ),
     },
 }
 
@@ -339,12 +350,14 @@ def main() -> None:
         plan = st.session_state.get("project_plan")
         if plan:
             _render_plan(plan)
+        elif st.session_state.get("plan_error"):
+            _render_error_state(st.session_state["plan_error"])
         else:
             _render_empty_state()
 
 
 def _reset_workspace() -> None:
-    for key in ("project_plan", "similar_plans", "plan_status", "memory_comparison"):
+    for key in ("project_plan", "similar_plans", "plan_status", "memory_comparison", "plan_error"):
         st.session_state.pop(key, None)
     st.session_state["idea_input"] = ""
 
@@ -404,6 +417,7 @@ def _render_history_entry(saved_plan: ProjectPlan, language: str) -> None:
         st.session_state["similar_plans"] = []
         st.session_state["plan_status"] = "loaded"
         st.session_state["memory_comparison"] = None
+        st.session_state.pop("plan_error", None)
         st.session_state.pop("rename_target", None)
         st.session_state.pop("delete_target", None)
         st.rerun()
@@ -516,10 +530,18 @@ def _generate_plan() -> None:
         return
 
     with st.spinner(_t("generating")):
-        project_plan = create_project_plan(idea)
-        if llm_is_configured():
-            project_plan, _, _ = asyncio.run(refine_project_plan_with_fallback(project_plan))
+        scaffold = create_project_plan(idea)
+        try:
+            project_plan = asyncio.run(generate_project_plan_with_llm(scaffold))
+        except Exception as exc:  # noqa: BLE001
+            st.session_state["plan_error"] = str(exc)
+            st.session_state.pop("project_plan", None)
+            st.session_state.pop("similar_plans", None)
+            st.session_state.pop("plan_status", None)
+            st.rerun()
+            return
 
+        st.session_state.pop("plan_error", None)
         st.session_state["project_plan"] = project_plan
         _write_outputs(project_plan)
         st.session_state["similar_plans"] = find_similar_project_plans(idea)
@@ -545,6 +567,20 @@ def _render_empty_state() -> None:
                 <span>{_escape_html(_t("evaluation"))}</span>
                 <span>{_escape_html(_t("export"))}</span>
             </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_error_state(error: str) -> None:
+    st.markdown(
+        f"""
+        <div class="error-state">
+            <p class="eyebrow">{_escape_html(_t("llm_error_eyebrow"))}</p>
+            <h2>{_escape_html(_t("llm_error_title"))}</h2>
+            <p>{_escape_html(_t("llm_error_body"))}</p>
+            <pre>{_escape_html(error)}</pre>
         </div>
         """,
         unsafe_allow_html=True,
@@ -798,6 +834,7 @@ def _render_memory_tab(plan: ProjectPlan) -> None:
             st.session_state["project_plan"] = selected_plan
             st.session_state["plan_status"] = "loaded"
             st.session_state["memory_comparison"] = None
+            st.session_state.pop("plan_error", None)
             st.rerun()
     with col_compare:
         if st.button(_t("compare_current"), use_container_width=True):
@@ -1163,6 +1200,37 @@ def _apply_theme() -> None:
             min-height: 430px;
             border-radius: 16px;
             padding: 1.35rem;
+        }
+
+        .error-state {
+            min-height: 430px;
+            border-radius: 16px;
+            padding: 1.35rem;
+            border: 1px solid #f1a9a0;
+            background: linear-gradient(135deg, rgba(220,38,38,0.10), var(--card)), var(--surface);
+            box-shadow: var(--shadow-soft);
+            color: var(--ink);
+        }
+
+        .error-state .eyebrow {
+            color: #dc2626 !important;
+        }
+
+        .error-state h2 {
+            margin: 0.35rem 0 0.5rem 0;
+            color: var(--ink);
+        }
+
+        .error-state pre {
+            margin-top: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: var(--nested-card);
+            color: var(--muted);
+            font-size: 0.86rem;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .empty-state h2,

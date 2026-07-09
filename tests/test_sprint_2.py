@@ -3,9 +3,11 @@ from __future__ import annotations
 import asyncio
 import json
 
+import pytest
+
 from ai_research_design_assistant.agent import plan
 from ai_research_design_assistant.exporters import export_project_plan
-from ai_research_design_assistant.llm import refine_project_plan_with_fallback
+from ai_research_design_assistant.llm import LlmConfigError, generate_project_plan_with_llm
 from ai_research_design_assistant.memory import load_project_plans, save_project_plan
 from ai_research_design_assistant.validation import validate_research_questions
 
@@ -65,12 +67,9 @@ def test_markdown_and_json_export_create_files(tmp_path) -> None:
     assert json.loads(json_path.read_text(encoding="utf-8"))["research_questions"]
 
 
-def test_llm_fallback_does_not_crash_without_api_key(monkeypatch) -> None:
+def test_llm_generation_requires_api_key(monkeypatch) -> None:
     monkeypatch.setenv("ACADEMIC_CLOUD_API_KEY", "")
     project_plan = plan("Agentic AI Security Tool Usage Evaluation Prototype")
 
-    fallback_plan, llm_ok, error = asyncio.run(refine_project_plan_with_fallback(project_plan))
-
-    assert fallback_plan == project_plan
-    assert llm_ok is False
-    assert error
+    with pytest.raises(LlmConfigError):
+        asyncio.run(generate_project_plan_with_llm(project_plan))
