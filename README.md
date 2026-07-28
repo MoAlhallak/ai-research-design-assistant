@@ -7,6 +7,7 @@ planning scaffold with structured generation through Academic Cloud / SAIA.
 ## Project Links
 
 - [Project Website](https://moalhallak.github.io/ai-research-design-assistant/)
+- [Pitch Deck](docs/assets/AI_Research_Design_Assistant_Demo_Day.pdf)
 - Docker image: `ghcr.io/moalhallak/ai-research-design-assistant:latest`
 
 ## Main Features
