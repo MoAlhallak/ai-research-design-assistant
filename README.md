@@ -6,9 +6,13 @@ planning scaffold with structured generation through Academic Cloud / SAIA.
 
 ## Project Links
 
+- [Live Application](https://ai-research-design-assistant-ttbmfiexuwdcs8yhqquhgf.streamlit.app/)
 - [Project Website](https://moalhallak.github.io/ai-research-design-assistant/)
-- [Pitch Deck](docs/assets/AI_Research_Design_Assistant_Demo_Day.pdf)
 - Docker image: `ghcr.io/moalhallak/ai-research-design-assistant:latest`
+
+The Live Application is the directly usable Streamlit product. The Project
+Website is the public project portfolio and documentation page. The Docker image
+can be used for local container deployment.
 
 ## Main Features
 
