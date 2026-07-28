@@ -107,6 +107,20 @@ Open the application:
 http://localhost:8501
 ```
 
+## Streamlit Community Cloud
+
+Use the following deployment settings in Streamlit Community Cloud:
+
+- Repository: `MoAlhallak/ai-research-design-assistant`
+- Branch: `main`
+- Main file: `app.py`
+- Recommended Python version: `3.11`
+
+Runtime dependencies are installed from the root `requirements.txt`. Add
+`ACADEMIC_CLOUD_API_KEY`, `ACADEMIC_CLOUD_BASE_URL`,
+`ACADEMIC_CLOUD_MODEL` and `ACADEMIC_CLOUD_TIMEOUT` through
+Streamlit Community Cloud Secrets. Never commit the real API key.
+
 ## Docker Compose
 
 Create the local configuration file and add the real API key:
@@ -218,6 +232,7 @@ http://localhost:8501/_stcore/health
 |-- CONTRIBUTING.md
 |-- LICENSE
 |-- pyproject.toml
+|-- requirements.txt
 `-- README.md
 ```
 
