@@ -9,7 +9,7 @@ with structured generation through Academic Cloud / SAIA.
 
 | Item | Delivery |
 |---|---|
-| Project Website | [GitHub Pages project website](https://moalhallak.github.io/ai-research-design-assistant/) — activate Pages after the final push |
+| Project Website | [https://moalhallak.github.io/ai-research-design-assistant/](https://moalhallak.github.io/ai-research-design-assistant/) |
 | Code Repository | [github.com/MoAlhallak/ai-research-design-assistant](https://github.com/MoAlhallak/ai-research-design-assistant) |
 | Docker Image | `ghcr.io/moalhallak/ai-research-design-assistant:latest` |
 | Pitch Deck | Not included in this repository; add the final PDF when available |
