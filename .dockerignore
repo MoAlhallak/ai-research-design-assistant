@@ -18,6 +18,9 @@ __pycache__/
 !.env.example
 outputs/
 exports/
+release/
+build/
+dist/
 docs/
 tests/
 *.md

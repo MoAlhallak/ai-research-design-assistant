@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="AI Research Design Assistant turns an early research idea into a validated, structured project plan with methodology, evaluation and risk guidance."
+    >
+    <meta name="theme-color" content="#08111f">
+    <title>AI Research Design Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="shell nav-wrap">
+        <a class="brand" href="#top" aria-label="AI Research Design Assistant home">
+          <span class="brand-mark" aria-hidden="true">AR</span>
+          <span>
+            <strong>Research Design</strong>
+            <small>AI planning assistant</small>
+          </span>
+        </a>
+        <nav aria-label="Primary navigation">
+          <a href="#solution">Solution</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#capabilities">Capabilities</a>
+          <a href="#delivery">Delivery</a>
+        </nav>
+        <a
+          class="button button-small button-ghost"
+          href="https://github.com/MoAlhallak/ai-research-design-assistant"
+        >
+          View repository
+        </a>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" id="top">
+        <div class="hero-grid shell">
+          <div class="hero-copy">
+            <div class="eyebrow">
+              <span class="status-dot" aria-hidden="true"></span>
+              Final university project
+            </div>
+            <h1>Move from a broad idea to a <span>defensible research plan.</span></h1>
+            <p class="hero-lead">
+              AI Research Design Assistant helps students scope a topic, frame measurable
+              questions, choose methods, plan evaluation and anticipate risk—inside one
+              structured workflow.
+            </p>
+            <div class="hero-actions">
+              <a
+                class="button button-primary"
+                href="https://github.com/MoAlhallak/ai-research-design-assistant"
+              >
+                Explore the code
+              </a>
+              <a class="button button-ghost" href="#worked-example">See the worked example</a>
+            </div>
+            <ul class="hero-notes" aria-label="Project highlights">
+              <li>Streamlit interface</li>
+              <li>Validated JSON output</li>
+              <li>Local plan history</li>
+            </ul>
+          </div>
+
+          <div class="hero-panel" aria-label="Research plan preview">
+            <div class="panel-bar">
+              <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <span>project-plan.json</span>
+              <span class="panel-state">validated</span>
+            </div>
+            <div class="plan-preview">
+              <div class="preview-heading">
+                <span class="preview-icon" aria-hidden="true">01</span>
+                <div>
+                  <small>Refined topic</small>
+                  <strong>Security controls for tool-using AI agents</strong>
+                </div>
+              </div>
+              <div class="preview-line">
+                <span>Research questions</span>
+                <b>3</b>
+              </div>
+              <div class="preview-line">
+                <span>Methodology</span>
+                <b>Prototype + evaluation</b>
+              </div>
+              <div class="preview-line">
+                <span>Risk controls</span>
+                <b>5 mapped</b>
+              </div>
+              <div class="quality-row">
+                <span>Clarity</span>
+                <span>Testability</span>
+                <span>Feasibility</span>
+              </div>
+              <div class="validation-stamp">
+                <span aria-hidden="true">✓</span>
+                <div>
+                  <strong>ProjectPlan validated</strong>
+                  <small>Ready for UI, memory and export</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-glow" aria-hidden="true"></div>
+      </section>
+
+      <section class="metric-strip" aria-label="Project overview">
+        <div class="shell metrics">
+          <div><strong>7</strong><span>planning views</span></div>
+          <div><strong>3</strong><span>export formats</span></div>
+          <div><strong>4</strong><span>question checks</span></div>
+          <div><strong>1</strong><span>coherent workflow</span></div>
+        </div>
+      </section>
+
+      <section class="section shell" id="solution">
+        <div class="section-intro">
+          <span class="kicker">Problem and solution</span>
+          <h2>Research planning is difficult before the research has even started.</h2>
+          <p>
+            Early ideas are often too broad, methods are selected without clear evidence
+            needs, and risks appear only after implementation. The assistant makes those
+            decisions visible and reviewable from the beginning.
+          </p>
+        </div>
+        <div class="problem-grid">
+          <article class="feature-card problem-card">
+            <span class="card-index">The problem</span>
+            <h3>A topic is not yet a research design</h3>
+            <p>
+              Students must translate interest into a realistic scope, answerable
+              questions, suitable methods, measurable criteria and a deliverable plan.
+            </p>
+            <ul class="check-list muted-list">
+              <li>Broad or ambiguous questions</li>
+              <li>Weak links between method and evidence</li>
+              <li>Unexamined feasibility and project risk</li>
+            </ul>
+          </article>
+          <article class="feature-card solution-card">
+            <span class="card-index">The solution</span>
+            <h3>One structured planning conversation</h3>
+            <p>
+              A local scaffold establishes the complete schema. SAIA develops the final
+              content, and Pydantic accepts it only when the technical structure is valid.
+            </p>
+            <ul class="check-list">
+              <li>Transparent research-question checks</li>
+              <li>Connected methodology and evaluation guidance</li>
+              <li>Reusable history and exportable outcomes</li>
+            </ul>
+          </article>
+        </div>
+        <div class="audience">
+          <div>
+            <span class="kicker">Target users</span>
+            <h3>Designed for students who need a credible starting point.</h3>
+          </div>
+          <div class="audience-tags" aria-label="Target users">
+            <span>Master’s students</span>
+            <span>Capstone teams</span>
+            <span>Early-stage researchers</span>
+            <span>Academic supervisors</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tinted" id="capabilities">
+        <div class="shell">
+          <div class="section-intro compact">
+            <span class="kicker">Main features</span>
+            <h2>A planning toolkit, not a generic chat response.</h2>
+          </div>
+          <div class="capability-grid">
+            <article class="capability-card">
+              <span class="capability-number">01</span>
+              <h3>Topic framing</h3>
+              <p>Detects focus areas and narrows a rough idea to a feasible project scope.</p>
+            </article>
+            <article class="capability-card">
+              <span class="capability-number">02</span>
+              <h3>Question validation</h3>
+              <p>Explains clarity, testability, scope and feasibility for every question.</p>
+            </article>
+            <article class="capability-card">
+              <span class="capability-number">03</span>
+              <h3>Methodology Advisor</h3>
+              <p>Connects method choices to steps, artifacts, fit and limitations.</p>
+            </article>
+            <article class="capability-card">
+              <span class="capability-number">04</span>
+              <h3>Evaluation Builder</h3>
+              <p>Defines measurements, expected evidence and priorities for evaluation.</p>
+            </article>
+            <article class="capability-card">
+              <span class="capability-number">05</span>
+              <h3>Risk Matrix</h3>
+              <p>Pairs probability and impact with a concrete mitigation strategy.</p>
+            </article>
+            <article class="capability-card">
+              <span class="capability-number">06</span>
+              <h3>Plan History</h3>
+              <p>Searches, reloads, compares, renames and deletes locally saved plans.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shell" id="worked-example">
+        <div class="section-intro">
+          <span class="kicker">Worked example</span>
+          <h2>Agentic AI Security and Tool Usage</h2>
+          <p>
+            A representative project idea shows how the assistant turns an area of
+            interest into concrete planning decisions.
+          </p>
+        </div>
+        <div class="example-layout">
+          <div class="prompt-card">
+            <span class="prompt-label">Student input</span>
+            <blockquote>
+              “I want to work on Agentic AI Security and Tool Usage.”
+            </blockquote>
+            <div class="focus-pills">
+              <span>Agentic AI</span>
+              <span>Security</span>
+              <span>Tool Usage</span>
+            </div>
+          </div>
+          <ol class="example-steps">
+            <li>
+              <span>1</span>
+              <div>
+                <strong>Narrow the scope</strong>
+                <p>Focus on security controls for external tool use in a small prototype.</p>
+              </div>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <strong>Make questions measurable</strong>
+                <p>Connect risk identification and mitigation to observable scenarios.</p>
+              </div>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <strong>Choose evidence</strong>
+                <p>Use a prototype, test cases, a threat model and an evaluation checklist.</p>
+              </div>
+            </li>
+            <li>
+              <span>4</span>
+              <div>
+                <strong>Map limitations</strong>
+                <p>Record prototype bias, incomplete threats and weak evaluation evidence.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section section-tinted" id="workflow">
+        <div class="shell">
+          <div class="section-intro">
+            <span class="kicker">How the agent works</span>
+            <h2>Structured from input to export.</h2>
+            <p>
+              Each stage has a distinct responsibility. A failure in generation or
+              structural validation stops the final plan instead of silently returning an
+              incomplete scaffold.
+            </p>
+          </div>
+          <div class="pipeline" aria-label="Application architecture pipeline">
+            <div class="pipeline-node"><span>01</span><strong>User Input</strong></div>
+            <i aria-hidden="true">→</i>
+            <div class="pipeline-node"><span>02</span><strong>Local Planning Scaffold</strong></div>
+            <i aria-hidden="true">→</i>
+            <div class="pipeline-node"><span>03</span><strong>Structured SAIA Request</strong></div>
+            <i aria-hidden="true">→</i>
+            <div class="pipeline-node"><span>04</span><strong>LLM JSON Response</strong></div>
+            <i aria-hidden="true">→</i>
+            <div class="pipeline-node"><span>05</span><strong>Pydantic Validation</strong></div>
+            <i aria-hidden="true">→</i>
+            <div class="pipeline-node"><span>06</span><strong>ProjectPlan</strong></div>
+            <i aria-hidden="true">→</i>
+            <div class="pipeline-node"><span>07</span><strong>UI, Memory &amp; Export</strong></div>
+          </div>
+          <div class="architecture-note">
+            <span class="note-mark" aria-hidden="true">i</span>
+            <p>
+              <strong>Validation boundary:</strong> Pydantic verifies required fields,
+              nesting and data types. It does not verify scientific truth, source quality
+              or whether a proposed method is academically correct.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shell" id="planning-tools">
+        <div class="section-intro">
+          <span class="kicker">Planning intelligence</span>
+          <h2>Clear reasons behind the recommendation.</h2>
+        </div>
+        <div class="detail-grid">
+          <article class="detail-card validation-card">
+            <div class="detail-head">
+              <span>RQ</span>
+              <div>
+                <small>Research-question validation</small>
+                <h3>Four visible quality checks</h3>
+              </div>
+            </div>
+            <div class="quality-list">
+              <div><span>Clarity</span><b>Is the wording specific?</b></div>
+              <div><span>Testability</span><b>Can evidence answer it?</b></div>
+              <div><span>Scope</span><b>Is it narrow enough?</b></div>
+              <div><span>Feasibility</span><b>Can a student deliver it?</b></div>
+            </div>
+          </article>
+          <article class="detail-card">
+            <div class="detail-head">
+              <span>MA</span>
+              <div>
+                <small>Methodology Advisor</small>
+                <h3>Method, fit and limitations</h3>
+              </div>
+            </div>
+            <p>
+              Recommends literature review, prototype, experiment, comparison, case study
+              or evaluation-checklist approaches and explains the required steps and
+              artifacts.
+            </p>
+            <div class="mini-tags"><span>Prototype</span><span>Experiment</span><span>Case study</span></div>
+          </article>
+          <article class="detail-card">
+            <div class="detail-head">
+              <span>EB</span>
+              <div>
+                <small>Evaluation Builder</small>
+                <h3>Evidence before implementation</h3>
+              </div>
+            </div>
+            <p>
+              Defines criteria such as correctness, reproducibility, security, usability
+              and completeness with a measurement, expected evidence and priority.
+            </p>
+            <div class="evidence-meter" aria-label="Example evaluation priorities">
+              <i style="--score: 92%"></i>
+              <i style="--score: 76%"></i>
+              <i style="--score: 84%"></i>
+            </div>
+          </article>
+          <article class="detail-card risk-card">
+            <div class="detail-head">
+              <span>RM</span>
+              <div>
+                <small>Risk Matrix</small>
+                <h3>Probability × impact × response</h3>
+              </div>
+            </div>
+            <div class="risk-table" role="table" aria-label="Example risk matrix">
+              <div role="row"><b role="columnheader">Risk</b><b role="columnheader">P</b><b role="columnheader">I</b></div>
+              <div role="row"><span role="cell">Scope creep</span><em role="cell">M</em><em role="cell">H</em></div>
+              <div role="row"><span role="cell">Weak evidence</span><em role="cell">M</em><em role="cell">H</em></div>
+              <div role="row"><span role="cell">Prototype bias</span><em role="cell">H</em><em role="cell">M</em></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-tinted">
+        <div class="shell split-feature">
+          <div>
+            <span class="kicker">Plan History</span>
+            <h2>Research plans remain useful after generation.</h2>
+            <p>
+              Saved plans live locally. Students can search past work, reopen a plan,
+              compare directions, rename entries and delete a single plan without changing
+              the rest of their history.
+            </p>
+            <div class="history-actions" aria-label="Plan History operations">
+              <span>Search</span><span>Load</span><span>Compare</span>
+              <span>Rename</span><span>Delete</span>
+            </div>
+          </div>
+          <div class="history-mock" aria-label="Illustration of Plan History">
+            <div class="history-search">⌕&nbsp;&nbsp; Search plans</div>
+            <div class="history-item active">
+              <span>AS</span>
+              <div><strong>Agent security plan</strong><small>Tool usage · Prototype</small></div>
+              <b>•••</b>
+            </div>
+            <div class="history-item">
+              <span>RE</span>
+              <div><strong>Research evaluation</strong><small>Metrics · Comparison</small></div>
+              <b>•••</b>
+            </div>
+            <div class="history-item">
+              <span>ED</span>
+              <div><strong>Education technology</strong><small>Case study · Usability</small></div>
+              <b>•••</b>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shell">
+        <div class="delivery-grid">
+          <article class="export-panel">
+            <span class="kicker">Portable output</span>
+            <h2>One plan, three export formats.</h2>
+            <p>
+              Validated plans include question checks, methodology advice, evaluation
+              criteria and risks in formats suitable for editing, integration or sharing.
+            </p>
+            <div class="format-row">
+              <div><strong>MD</strong><span>Markdown</span></div>
+              <div><strong>{ }</strong><span>JSON</span></div>
+              <div><strong>PDF</strong><span>Document</span></div>
+            </div>
+          </article>
+          <article class="ops-panel">
+            <span class="kicker">Docker support</span>
+            <h2>Reproducible local delivery.</h2>
+            <pre><code>Copy-Item .env.example .env
+docker compose up --build
+
+# Published image
+docker run --rm -p 8501:8501 `
+  --env-file .env `
+  ghcr.io/moalhallak/ai-research-design-assistant:latest</code></pre>
+            <p class="code-note">
+              The real Academic Cloud key stays in the ignored local <code>.env</code>.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-tinted">
+        <div class="shell quality-layout">
+          <div>
+            <span class="kicker">Tests and quality checks</span>
+            <h2>Checked at code, structure and runtime levels.</h2>
+          </div>
+          <div class="quality-command">
+            <span><i aria-hidden="true">✓</i><code>python -m ruff check .</code></span>
+            <span><i aria-hidden="true">✓</i><code>python -m compileall src app.py</code></span>
+            <span><i aria-hidden="true">✓</i><code>python -m pytest</code></span>
+            <span><i aria-hidden="true">✓</i><code>docker compose config --quiet</code></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shell" id="limitations">
+        <div class="section-intro compact">
+          <span class="kicker">Important limitations</span>
+          <h2>A structured plan still requires human academic judgment.</h2>
+        </div>
+        <div class="limitations-grid">
+          <article>
+            <span>01</span>
+            <p>Final generation requires a valid Academic Cloud key and an available SAIA service.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <p>Schema validation cannot establish scientific correctness or factual accuracy.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <p>LLM recommendations can be incomplete, biased or unsuitable for a specific course.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <p>Local history is a single-user prototype, not an authenticated collaborative store.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section delivery-section" id="delivery">
+        <div class="shell delivery-callout">
+          <div>
+            <span class="kicker">Final project delivery</span>
+            <h2>Review the implementation and run it locally.</h2>
+            <p>
+              The repository includes application code, tests, Docker configuration,
+              project documentation and this GitHub Pages portfolio.
+            </p>
+          </div>
+          <div class="delivery-links">
+            <a href="https://github.com/MoAlhallak/ai-research-design-assistant">
+              <span>Source code</span><strong>GitHub repository ↗</strong>
+            </a>
+            <a href="https://github.com/MoAlhallak?tab=packages">
+              <span>Container</span><strong>GitHub Packages ↗</strong>
+            </a>
+            <div>
+              <span>Pitch deck</span><strong>PDF not yet provided</strong>
+            </div>
+            <div>
+              <span>Product video</span><strong>Public URL still required</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell footer-grid">
+        <div class="brand footer-brand">
+          <span class="brand-mark" aria-hidden="true">AR</span>
+          <span><strong>AI Research Design Assistant</strong><small>Final project delivery</small></span>
+        </div>
+        <p>Built for transparent, structured research planning.</p>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </footer>
+  </body>
+</html>

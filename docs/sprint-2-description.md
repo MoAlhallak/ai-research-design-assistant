@@ -35,21 +35,25 @@ This validation is part of the structured project plan and is displayed in the
 Streamlit app as a table. It helps users understand whether a question is
 realistic, measurable and focused enough for a student project.
 
-## 3. More Robust Fallback Behavior
+## 3. Structured Generation Error Handling
 
-The local template-based planner remains the stable core of the application. If
-LLM refinement is configured, the assistant can use it internally. If anything
-goes wrong, the app continues with the local plan.
+Sprint 2 introduced the local planning scaffold and the first SAIA integration.
+The final-delivery contract is now stricter: the scaffold defines the complete
+`ProjectPlan` structure, while Academic Cloud / SAIA generates the final
+content.
 
-Handled fallback cases:
+Handled error cases:
 
-- missing API key
+- missing `ACADEMIC_CLOUD_API_KEY`
 - unreachable API
 - invalid JSON response
-- incomplete response data
+- response data that does not validate as `ProjectPlan`
 
-Result: the demo remains stable even without internet access or a working LLM
-configuration.
+The final app shows a clear error in these cases and does not return or save the
+local scaffold as if it were a complete final plan. Existing saved plans and
+local history operations remain available. Pydantic validates the technical
+structure of the response; it does not verify the scientific correctness of the
+plan.
 
 ## 4. Improved Streamlit UI
 
@@ -80,7 +84,7 @@ Sprint 2 added a small pytest suite for the most important behavior:
 - question validation returns the expected fields
 - memory save/load works with JSON fallback
 - Markdown and JSON export files are created
-- fallback behavior does not crash without an API key
+- final LLM generation raises a clear configuration error without an API key
 
 The project also uses `ruff` and `compileall` as lightweight quality checks.
 
@@ -94,3 +98,17 @@ The project structure was cleaned for GitHub submission:
 - Python cache files are ignored
 - the old duplicate Sprint-1 source snapshot was removed
 - Sprint-1 preparation notes were kept under `docs/`
+
+## Final-Delivery Architecture Update
+
+```text
+User Input
+→ Local Planning Scaffold
+→ Structured SAIA Request
+→ LLM JSON Response
+→ Pydantic Validation
+→ ProjectPlan
+→ UI, Memory and Export
+```
+
+The configured model is `qwen3-30b-a3b-instruct-2507`.

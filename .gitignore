@@ -22,6 +22,9 @@ env/
 # Generated outputs
 outputs/
 exports/
+release/
+build/
+dist/
 examples/*/papers.json
 examples/*/references.bib
 examples/*/citation-network.graphml

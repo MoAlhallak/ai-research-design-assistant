@@ -2,8 +2,10 @@
 
 Sprint 3 extends the existing AI Research Design Assistant from a research
 question planning prototype into a stronger methodology and evaluation planning
-assistant. The original planning pipeline, Streamlit app structure and offline
-fallback behavior remain intact.
+assistant. The original planning pipeline, Streamlit app structure and local
+history features remain intact. For the final delivery, the local pipeline
+creates the initial `ProjectPlan` scaffold and Academic Cloud / SAIA generates
+the final content. There is no local final-plan fallback.
 
 ## Methodology Advisor
 
@@ -182,6 +184,24 @@ Each risk also contains probability, impact and a mitigation strategy.
 
 - added a concrete worked example for the reviewer demo
 - made validation logic transparent with a reason for every rating
-- clarified that local rule-based planning is the stable core and AI refinement
-  remains optional and internal
+- uses the local rule-based pipeline as a scaffold and requires structured SAIA
+  generation for the final plan
 - improved demo value through clean focus areas and expandable validation details
+
+## Final-Delivery Runtime Contract
+
+```text
+User Input
+→ Local Planning Scaffold
+→ Structured SAIA Request
+→ LLM JSON Response
+→ Pydantic Validation
+→ ProjectPlan
+→ UI, Memory and Export
+```
+
+Final generation requires `ACADEMIC_CLOUD_API_KEY` and uses
+`qwen3-30b-a3b-instruct-2507`. If the service is unavailable or the JSON cannot
+be validated as a `ProjectPlan`, the UI displays an error rather than returning
+an incomplete plan. Pydantic validates the technical schema, not scientific
+correctness.

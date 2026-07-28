@@ -5,15 +5,20 @@ before a live demo. Work through it top to bottom.
 
 ## Startup
 
+- [ ] A local `.env` exists and contains the real `ACADEMIC_CLOUD_API_KEY`
 - [ ] App starts locally: `python -m streamlit run app.py`
 - [ ] App opens at `http://localhost:8501` without errors in the terminal
-- [ ] App starts in Docker: `docker compose build` then `docker compose up`
+- [ ] App starts in Docker: `docker compose up --build`
 - [ ] Docker app is reachable at `http://localhost:8501`
+- [ ] Docker health endpoint returns `ok` at
+      `http://localhost:8501/_stcore/health`
 
 ## Core flow
 
 - [ ] Demo example loads (click **Use example input**)
 - [ ] Plan generation works (click **Generate Plan**)
+- [ ] A missing key, unavailable API or invalid response produces a clear error
+      and no incomplete plan
 - [ ] Overview, Questions, Methodology Advisor, Evaluation Builder, Risk Matrix,
       Memory and Export tabs all render
 - [ ] Switching tabs and opening expanders does not reset the plan
@@ -46,6 +51,7 @@ before a live demo. Work through it top to bottom.
 ## Quality
 
 - [ ] Tests pass: `python -m pytest`
-- [ ] Lint passes: `ruff check .`
+- [ ] Lint passes: `python -m ruff check .`
 - [ ] Compile check passes: `python -m compileall src app.py`
+- [ ] Docker configuration passes: `docker compose config --quiet`
 - [ ] No "Sprint" wording is visible anywhere in the GUI
